@@ -72,7 +72,7 @@ void CBLibXMLUtility::saveWithLibXML(map<string,string>& data,const string& file
     for (int i = 0; i < 10; i++) {
         char *nodeName = nil;
         snprintf(nodeName, 1, "newNode %d",i);
-        const char *nodeContent = nil;
+        char *nodeContent = nil;
         snprintf(nodeContent, 1, "newNode content %d",i);
         xmlNewTextChild(root, NULL, BAD_CAST nodeName, BAD_CAST nodeContent);
     }
