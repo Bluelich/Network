@@ -10,7 +10,7 @@
 #import "IMSIXMLParser.h"
 #import "PLMN.h"
 
-static NSString *const IMSI_PLMN_URL = @"http://www.mcc-mnc.com/";
+static NSString * const kIMSI_PLMN_RESOURCE_URL = @"http://www.mcc-mnc.com/";
 @interface IMSIManager ()
 
 @property (class,nonatomic,strong,readonly) IMSIManager  *shared;
@@ -35,20 +35,17 @@ static NSString *const IMSI_PLMN_URL = @"http://www.mcc-mnc.com/";
 + (BOOL)update:(NSError **)err
 {
     NSData *data = [IMSIManager.shared fetchData:err];
-    if (*err != nil) {
+    if (*err != nil || !data) {
         return NO;
     }
-    if (!data) {
-        return NO;
-    }
-    [IMSIManager.shared saveData:data error:err];
+    [data writeToFile:IMSIManager.shared.filePath options:NSDataWritingAtomic error:err];
     return [IMSIManager.shared updateWithData:data error:err];
 }
 - (instancetype)init
 {
     self = [super init];
     if (self) {
-        NSData *data = [IMSI_PLMN_URL dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *data = [kIMSI_PLMN_RESOURCE_URL dataUsingEncoding:NSUTF8StringEncoding];
         NSString *fileName = [data base64EncodedStringWithOptions:NSDataBase64Encoding76CharacterLineLength];
         self.filePath = [[NSTemporaryDirectory() stringByAppendingPathComponent:fileName] stringByAppendingPathExtension:@"html"];
         [self loadLocalData];
@@ -65,7 +62,7 @@ static NSString *const IMSI_PLMN_URL = @"http://www.mcc-mnc.com/";
 - (NSData *)fetchData:(NSError **)error
 {
     NSError *err = nil;
-    NSMutableString *html = [NSString stringWithContentsOfURL:[NSURL URLWithString:IMSI_PLMN_URL] encoding:NSUTF8StringEncoding error:&err].mutableCopy;
+    NSMutableString *html = [NSString stringWithContentsOfURL:[NSURL URLWithString:kIMSI_PLMN_RESOURCE_URL] encoding:NSUTF8StringEncoding error:&err].mutableCopy;
     if (err) {
         *error = err;
         return nil;
@@ -77,7 +74,12 @@ static NSString *const IMSI_PLMN_URL = @"http://www.mcc-mnc.com/";
     }
     NSArray<NSTextCheckingResult *> *result = [regularExpression matchesInString:html options:NSMatchingReportCompletion range:NSMakeRange(0, html.length)];
     [result enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(NSTextCheckingResult * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        NSRange range = [obj  rangeWithName:@"noamp"];
+        NSRange range = NSMakeRange(0, 0);
+        if (@available(iOS 11.0, *)) {
+            range = [obj  rangeWithName:@"noamp"];
+        } else {
+            range = [obj rangeAtIndex:1];
+        }
         NSString *str = [html substringWithRange:range];
         if ([str isEqualToString:@"&"]) {
             [html replaceCharactersInRange:range withString:@"&amp;"];
@@ -85,19 +87,6 @@ static NSString *const IMSI_PLMN_URL = @"http://www.mcc-mnc.com/";
     }];
     NSData *data = [html dataUsingEncoding:NSUTF8StringEncoding];
     return data;
-}
-- (void)saveData:(NSData *)data error:(NSError **)error
-{
-    if (!data) {
-        return;
-    }
-    NSFileManager *manager = NSFileManager.defaultManager;
-    if ([manager fileExistsAtPath:self.filePath]) {
-        [manager removeItemAtPath:self.filePath error:error];
-    }
-    if ([data writeToFile:self.filePath atomically:YES]) {
-        NSLog(@"写入失败");
-    }
 }
 - (BOOL)updateWithData:(NSData *)data error:(NSError **)error
 {
