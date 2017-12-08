@@ -15,7 +15,7 @@
 		B45B37D61FD0023100A79E6D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B45B37D51FD0023100A79E6D /* main.m */; };
 		B45B37DE1FD0028800A79E6D /* NetWorkStatusManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B45B37DD1FD0028800A79E6D /* NetWorkStatusManager.m */; };
 		B46F206F1FD289F600F48542 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B46F206E1FD2859900F48542 /* libxml2.tbd */; };
-		B49BC82F1FD9225D0094B258 /* libxml.md in Resources */ = {isa = PBXBuildFile; fileRef = B49BC82E1FD9225D0094B258 /* libxml.md */; };
+		B49BC82F1FD9225D0094B258 /* libxml.html in Resources */ = {isa = PBXBuildFile; fileRef = B49BC82E1FD9225D0094B258 /* libxml.html */; };
 		B49BC8331FD923790094B258 /* xcodesamplecode.plist in Resources */ = {isa = PBXBuildFile; fileRef = B49BC8321FD923790094B258 /* xcodesamplecode.plist */; };
 		B4AFA21B1FD52D7A004B062E /* IMSIXMLParser.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA2111FD52D7A004B062E /* IMSIXMLParser.m */; };
 		B4AFA21C1FD52D7A004B062E /* IMSIManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA2121FD52D7A004B062E /* IMSIManager.m */; };
@@ -37,7 +37,7 @@
 		B45B37DC1FD0028700A79E6D /* NetWorkStatusManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetWorkStatusManager.h; sourceTree = "<group>"; };
 		B45B37DD1FD0028800A79E6D /* NetWorkStatusManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NetWorkStatusManager.m; sourceTree = "<group>"; };
 		B46F206E1FD2859900F48542 /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
-		B49BC82E1FD9225D0094B258 /* libxml.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = libxml.md; sourceTree = "<group>"; };
+		B49BC82E1FD9225D0094B258 /* libxml.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = libxml.html; sourceTree = "<group>"; };
 		B49BC8321FD923790094B258 /* xcodesamplecode.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = xcodesamplecode.plist; sourceTree = "<group>"; };
 		B4AFA2111FD52D7A004B062E /* IMSIXMLParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSIXMLParser.m; sourceTree = "<group>"; };
 		B4AFA2121FD52D7A004B062E /* IMSIManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSIManager.m; sourceTree = "<group>"; };
@@ -125,7 +125,7 @@
 				B4AFA2111FD52D7A004B062E /* IMSIXMLParser.m */,
 				B4AFA2161FD52D7A004B062E /* libxmlParser.h */,
 				B4AFA2131FD52D7A004B062E /* libxmlParser.m */,
-				B49BC82E1FD9225D0094B258 /* libxml.md */,
+				B49BC82E1FD9225D0094B258 /* libxml.html */,
 			);
 			path = PLMN;
 			sourceTree = "<group>";
@@ -190,7 +190,7 @@
 			files = (
 				B45B37D31FD0023100A79E6D /* LaunchScreen.storyboard in Resources */,
 				B45B37D01FD0023100A79E6D /* Assets.xcassets in Resources */,
-				B49BC82F1FD9225D0094B258 /* libxml.md in Resources */,
+				B49BC82F1FD9225D0094B258 /* libxml.html in Resources */,
 				B49BC8331FD923790094B258 /* xcodesamplecode.plist in Resources */,
 				B45B37CE1FD0023100A79E6D /* Main.storyboard in Resources */,
 			);
