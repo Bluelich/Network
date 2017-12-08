@@ -20,8 +20,6 @@
 		B4AFA21B1FD52D7A004B062E /* IMSIXMLParser.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA2111FD52D7A004B062E /* IMSIXMLParser.m */; };
 		B4AFA21C1FD52D7A004B062E /* IMSIManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA2121FD52D7A004B062E /* IMSIManager.m */; };
 		B4AFA21D1FD52D7A004B062E /* libxmlParser.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA2131FD52D7A004B062E /* libxmlParser.m */; };
-		B4AFA21E1FD52D7A004B062E /* b.xml in Resources */ = {isa = PBXBuildFile; fileRef = B4AFA2151FD52D7A004B062E /* b.xml */; };
-		B4AFA21F1FD52D7A004B062E /* a.xml in Resources */ = {isa = PBXBuildFile; fileRef = B4AFA2191FD52D7A004B062E /* a.xml */; };
 		B4AFA2201FD52D7A004B062E /* PLMN.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA21A1FD52D7A004B062E /* PLMN.m */; };
 /* End PBXBuildFile section */
 
@@ -45,11 +43,9 @@
 		B4AFA2121FD52D7A004B062E /* IMSIManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSIManager.m; sourceTree = "<group>"; };
 		B4AFA2131FD52D7A004B062E /* libxmlParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = libxmlParser.m; sourceTree = "<group>"; };
 		B4AFA2141FD52D7A004B062E /* PLMN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLMN.h; sourceTree = "<group>"; };
-		B4AFA2151FD52D7A004B062E /* b.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = b.xml; sourceTree = "<group>"; };
 		B4AFA2161FD52D7A004B062E /* libxmlParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libxmlParser.h; sourceTree = "<group>"; };
 		B4AFA2171FD52D7A004B062E /* IMSIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSIManager.h; sourceTree = "<group>"; };
 		B4AFA2181FD52D7A004B062E /* IMSIXMLParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSIXMLParser.h; sourceTree = "<group>"; };
-		B4AFA2191FD52D7A004B062E /* a.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = a.xml; sourceTree = "<group>"; };
 		B4AFA21A1FD52D7A004B062E /* PLMN.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLMN.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -130,8 +126,6 @@
 				B4AFA2161FD52D7A004B062E /* libxmlParser.h */,
 				B4AFA2131FD52D7A004B062E /* libxmlParser.m */,
 				B49BC82E1FD9225D0094B258 /* libxml.md */,
-				B4AFA2191FD52D7A004B062E /* a.xml */,
-				B4AFA2151FD52D7A004B062E /* b.xml */,
 			);
 			path = PLMN;
 			sourceTree = "<group>";
@@ -197,8 +191,6 @@
 				B45B37D31FD0023100A79E6D /* LaunchScreen.storyboard in Resources */,
 				B45B37D01FD0023100A79E6D /* Assets.xcassets in Resources */,
 				B49BC82F1FD9225D0094B258 /* libxml.md in Resources */,
-				B4AFA21E1FD52D7A004B062E /* b.xml in Resources */,
-				B4AFA21F1FD52D7A004B062E /* a.xml in Resources */,
 				B49BC8331FD923790094B258 /* xcodesamplecode.plist in Resources */,
 				B45B37CE1FD0023100A79E6D /* Main.storyboard in Resources */,
 			);

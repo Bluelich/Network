@@ -15,23 +15,18 @@
     NSMutableArray  *_attr;
     NSMutableArray<NSString *>  *_each;
     NSMutableString  *_element_tr_td_content;
+    NSMutableArray<PLMN *> *_results;
 }
-@property (nonatomic,strong) NSMutableArray<NSDictionary *> *results;
+@property (nonatomic,strong) NSMutableArray<NSDictionary *> *parserResult;
+
 @end
 
 @implementation IMSIXMLParser
-- (instancetype)init
-{
-    self = [super init];
-    if (self) {
-        self.results = [NSMutableArray array];
-        _attr  = [NSMutableArray array];
-        _element_tr_begin = NO;
-    }
-    return self;
-}
 - (BOOL)parse
 {
+    _attr  = [NSMutableArray array];
+    _element_tr_begin = NO;
+    self.parserResult = [NSMutableArray array];
     self.delegate = self;
     return [super parse];
 }
@@ -40,9 +35,6 @@
     if ([elementName isEqualToString:@"tr"]) {
         _element_tr_begin = YES;
         _each = [NSMutableArray array];
-        if (self.results.count == 25) {
-            printf("");
-        }
     }else if ([elementName isEqualToString:@"td"]){
         _element_tr_td_content = [NSMutableString string];
     }
@@ -53,16 +45,13 @@
         if (_element_tr_begin) {
             NSMutableDictionary *dic = [NSMutableDictionary dictionary];
             for (int i = 0; i < _attr.count; i++) {
-                if (_each.count > i) {
-                    [dic setObject:_each[i] forKey:_attr[i]];
-                }else{
-                    [dic setObject:@"" forKey:_attr[i]];
-                }
+                [dic setObject:_each[i] forKey:_attr[i]];
             }
-            [self.results addObject:dic];
+            [self.parserResult addObject:dic];
+            _element_tr_begin = NO;
         }
-        _element_tr_begin = NO;
     }else if ([elementName isEqualToString:@"td"]){
+        [_element_tr_td_content stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         [_each addObject:_element_tr_td_content];
     }
 }
@@ -74,7 +63,6 @@
     if ([string hasPrefix:@"\n"]) {
         return;
     }
-    printf("\n:%s",string.UTF8String);
     if (_attr.count < 6) {
         [_attr addObject:string];
         if (_attr.count == 6) {
@@ -88,6 +76,20 @@
 {
     printf("error:%s",parseError.debugDescription.UTF8String);
 }
+- (void)parserDidEndDocument:(NSXMLParser *)parser
+{
+    _results = [NSMutableArray array];
+    for (NSDictionary *dic in self.parserResult) {
+        PLMN *plmn = [[PLMN alloc] initWithMCC:dic[_attr[0]]
+                                           MNC:dic[_attr[1]]
+                                           ISO:dic[_attr[2]]
+                                       country:dic[_attr[3]]
+                                   countryCode:dic[_attr[4]]
+                                       network:dic[_attr[5]]
+                                          MSIN:nil];
+        [_results addObject:plmn];
+    }
+}
 //文档验证错误
 - (void)parser:(NSXMLParser *)parser validationErrorOccurred:(NSError *)validationError
 {
@@ -95,7 +97,6 @@
 }
 //- (nullable NSData *)parser:(NSXMLParser *)parser resolveExternalEntityName:(NSString *)name systemID:(nullable NSString *)systemID{}//开始处理外部实体
 - (void)parserDidStartDocument:(NSXMLParser *)parser{}
-- (void)parserDidEndDocument:(NSXMLParser *)parser{}
 - (void)parser:(NSXMLParser *)parser didStartMappingPrefix:(NSString *)prefix toURI:(NSString *)namespaceURI{}
 - (void)parser:(NSXMLParser *)parser didEndMappingPrefix:(NSString *)prefix{}
 - (void)parser:(NSXMLParser *)parser foundComment:(NSString *)comment{}//处理注释

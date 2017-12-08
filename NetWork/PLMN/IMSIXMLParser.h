@@ -11,8 +11,6 @@
 @class PLMN;
 @interface IMSIXMLParser : NSXMLParser
 
-@property (nonatomic,strong,readonly) NSMutableArray<NSDictionary *> *results;
-
-@property (nonatomic,strong,readonly) NSArray<PLMN *> *allIMSI;
+@property (nonatomic,strong,readonly) NSArray<PLMN *> *results;
 
 @end

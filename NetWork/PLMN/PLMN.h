@@ -33,7 +33,9 @@
  */
 NS_ASSUME_NONNULL_BEGIN
 @interface PLMN : NSObject
+//
 @property (nonatomic, copy, readonly) NSString  *MCC;
+//
 @property (nonatomic, copy, readonly) NSString  *MNC;
 //国家简写(ISO 3166标准)
 @property (nonatomic, copy, readonly) NSString  *ISO;
@@ -45,5 +47,13 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, copy, readonly) NSString  *network;
 //移动用户识别代码
 @property (nullable, nonatomic, copy, readonly) NSString  *MSIN;
+
+- (instancetype)initWithMCC:(NSString *)MCC
+                        MNC:(NSString *)MNC
+                        ISO:(NSString *)ISO
+                    country:(NSString *)country
+                countryCode:(nullable NSString *)countryCode
+                    network:(nullable NSString *)network
+                       MSIN:(nullable NSString *)MSIN;
 @end
 NS_ASSUME_NONNULL_END
