@@ -146,7 +146,6 @@ static void NetWorkStatusManagerReachabilityCallback(SCNetworkReachabilityRef ta
      位置区识别(LAI):位置区识别在每个小区广播的系统消息中周期发送，其中的移动网号(MNC)表示GSMPLMN的网络号。移动台将接收到的该信息作为网络选择的重要依据之一。
      移动台的IMSI：移动台的IMSI中同样包含了移动网号(MNC)，它表示该移动用户所属的GSMPLMN网。当移动台在网络上登录或申请某种业务时，移动台必须将IMSI报告给网络(在不能使用IMIS的情况下)。网络则根据IMSI中的移动网号(MNC)来判断该用户是否为漫游用户，并将MNC作为寻址用户HLR的重要参数之一。
      设置及影响：作为全球唯一的国家识别标准，MCC的资源由国际电联(ITU)统一分配和管理。ITU建议书E.212(兰皮书)规定了各国的MCC号码。由于MCC的特殊意义，因此它在网络中一旦设定之后是不允许更改的。 若一个国家中有多于一个的GSM公司陆地移动网(PLMN)，则每个网必须具有不同的MNC。MNC一般由国家的有关电信管理部门统一分配，同一个营运者可以拥有一个或多个MNC(视业务提供的规模而定)，但不同的营运者不可以分享相同的MNC。
-     各国及地区GSN网络代码表........
      */
     CTCarrier *carrier = self.telephonyNetworkInfo.subscriberCellularProvider;
     NSString *mcc  = carrier.mobileCountryCode;//460

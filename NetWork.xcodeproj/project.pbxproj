@@ -14,6 +14,15 @@
 		B45B37D31FD0023100A79E6D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B45B37D11FD0023100A79E6D /* LaunchScreen.storyboard */; };
 		B45B37D61FD0023100A79E6D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B45B37D51FD0023100A79E6D /* main.m */; };
 		B45B37DE1FD0028800A79E6D /* NetWorkStatusManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B45B37DD1FD0028800A79E6D /* NetWorkStatusManager.m */; };
+		B46F206F1FD289F600F48542 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B46F206E1FD2859900F48542 /* libxml2.tbd */; };
+		B49BC82F1FD9225D0094B258 /* libxml.md in Resources */ = {isa = PBXBuildFile; fileRef = B49BC82E1FD9225D0094B258 /* libxml.md */; };
+		B49BC8331FD923790094B258 /* xcodesamplecode.plist in Resources */ = {isa = PBXBuildFile; fileRef = B49BC8321FD923790094B258 /* xcodesamplecode.plist */; };
+		B4AFA21B1FD52D7A004B062E /* IMSIXMLParser.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA2111FD52D7A004B062E /* IMSIXMLParser.m */; };
+		B4AFA21C1FD52D7A004B062E /* IMSIManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA2121FD52D7A004B062E /* IMSIManager.m */; };
+		B4AFA21D1FD52D7A004B062E /* libxmlParser.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA2131FD52D7A004B062E /* libxmlParser.m */; };
+		B4AFA21E1FD52D7A004B062E /* b.xml in Resources */ = {isa = PBXBuildFile; fileRef = B4AFA2151FD52D7A004B062E /* b.xml */; };
+		B4AFA21F1FD52D7A004B062E /* a.xml in Resources */ = {isa = PBXBuildFile; fileRef = B4AFA2191FD52D7A004B062E /* a.xml */; };
+		B4AFA2201FD52D7A004B062E /* PLMN.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA21A1FD52D7A004B062E /* PLMN.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +38,19 @@
 		B45B37D51FD0023100A79E6D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		B45B37DC1FD0028700A79E6D /* NetWorkStatusManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetWorkStatusManager.h; sourceTree = "<group>"; };
 		B45B37DD1FD0028800A79E6D /* NetWorkStatusManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NetWorkStatusManager.m; sourceTree = "<group>"; };
+		B46F206E1FD2859900F48542 /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
+		B49BC82E1FD9225D0094B258 /* libxml.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = libxml.md; sourceTree = "<group>"; };
+		B49BC8321FD923790094B258 /* xcodesamplecode.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = xcodesamplecode.plist; sourceTree = "<group>"; };
+		B4AFA2111FD52D7A004B062E /* IMSIXMLParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSIXMLParser.m; sourceTree = "<group>"; };
+		B4AFA2121FD52D7A004B062E /* IMSIManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSIManager.m; sourceTree = "<group>"; };
+		B4AFA2131FD52D7A004B062E /* libxmlParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = libxmlParser.m; sourceTree = "<group>"; };
+		B4AFA2141FD52D7A004B062E /* PLMN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLMN.h; sourceTree = "<group>"; };
+		B4AFA2151FD52D7A004B062E /* b.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = b.xml; sourceTree = "<group>"; };
+		B4AFA2161FD52D7A004B062E /* libxmlParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libxmlParser.h; sourceTree = "<group>"; };
+		B4AFA2171FD52D7A004B062E /* IMSIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSIManager.h; sourceTree = "<group>"; };
+		B4AFA2181FD52D7A004B062E /* IMSIXMLParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSIXMLParser.h; sourceTree = "<group>"; };
+		B4AFA2191FD52D7A004B062E /* a.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = a.xml; sourceTree = "<group>"; };
+		B4AFA21A1FD52D7A004B062E /* PLMN.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLMN.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,6 +58,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B46F206F1FD289F600F48542 /* libxml2.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -47,6 +70,7 @@
 			children = (
 				B45B37C51FD0023100A79E6D /* NetWork */,
 				B45B37C41FD0023100A79E6D /* Products */,
+				B46F206D1FD2859900F48542 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -67,6 +91,8 @@
 				B45B37CA1FD0023100A79E6D /* ViewController.m */,
 				B45B37DC1FD0028700A79E6D /* NetWorkStatusManager.h */,
 				B45B37DD1FD0028800A79E6D /* NetWorkStatusManager.m */,
+				B49BC8311FD9235D0094B258 /* MarkdownPreview */,
+				B4AFA2101FD52D7A004B062E /* PLMN */,
 				B45B37CC1FD0023100A79E6D /* Main.storyboard */,
 				B45B37CF1FD0023100A79E6D /* Assets.xcassets */,
 				B45B37D11FD0023100A79E6D /* LaunchScreen.storyboard */,
@@ -74,6 +100,40 @@
 				B45B37D51FD0023100A79E6D /* main.m */,
 			);
 			path = NetWork;
+			sourceTree = "<group>";
+		};
+		B46F206D1FD2859900F48542 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B46F206E1FD2859900F48542 /* libxml2.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B49BC8311FD9235D0094B258 /* MarkdownPreview */ = {
+			isa = PBXGroup;
+			children = (
+				B49BC8321FD923790094B258 /* xcodesamplecode.plist */,
+			);
+			path = MarkdownPreview;
+			sourceTree = "<group>";
+		};
+		B4AFA2101FD52D7A004B062E /* PLMN */ = {
+			isa = PBXGroup;
+			children = (
+				B4AFA2141FD52D7A004B062E /* PLMN.h */,
+				B4AFA21A1FD52D7A004B062E /* PLMN.m */,
+				B4AFA2171FD52D7A004B062E /* IMSIManager.h */,
+				B4AFA2121FD52D7A004B062E /* IMSIManager.m */,
+				B4AFA2181FD52D7A004B062E /* IMSIXMLParser.h */,
+				B4AFA2111FD52D7A004B062E /* IMSIXMLParser.m */,
+				B4AFA2161FD52D7A004B062E /* libxmlParser.h */,
+				B4AFA2131FD52D7A004B062E /* libxmlParser.m */,
+				B49BC82E1FD9225D0094B258 /* libxml.md */,
+				B4AFA2191FD52D7A004B062E /* a.xml */,
+				B4AFA2151FD52D7A004B062E /* b.xml */,
+			);
+			path = PLMN;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -107,7 +167,7 @@
 				TargetAttributes = {
 					B45B37C21FD0023100A79E6D = {
 						CreatedOnToolsVersion = 9.1;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -136,6 +196,10 @@
 			files = (
 				B45B37D31FD0023100A79E6D /* LaunchScreen.storyboard in Resources */,
 				B45B37D01FD0023100A79E6D /* Assets.xcassets in Resources */,
+				B49BC82F1FD9225D0094B258 /* libxml.md in Resources */,
+				B4AFA21E1FD52D7A004B062E /* b.xml in Resources */,
+				B4AFA21F1FD52D7A004B062E /* a.xml in Resources */,
+				B49BC8331FD923790094B258 /* xcodesamplecode.plist in Resources */,
 				B45B37CE1FD0023100A79E6D /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -147,9 +211,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4AFA2201FD52D7A004B062E /* PLMN.m in Sources */,
 				B45B37CB1FD0023100A79E6D /* ViewController.m in Sources */,
+				B4AFA21D1FD52D7A004B062E /* libxmlParser.m in Sources */,
 				B45B37D61FD0023100A79E6D /* main.m in Sources */,
 				B45B37DE1FD0028800A79E6D /* NetWorkStatusManager.m in Sources */,
+				B4AFA21C1FD52D7A004B062E /* IMSIManager.m in Sources */,
+				B4AFA21B1FD52D7A004B062E /* IMSIXMLParser.m in Sources */,
 				B45B37C81FD0023100A79E6D /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -284,11 +352,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = XWNPFKK4U5;
+				HEADER_SEARCH_PATHS = "${SDK_ROOT}/usr/include/libxml2";
 				INFOPLIST_FILE = NetWork/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.bluelich.NetWork;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "0a1bcf6c-1ddb-4670-84a9-fa673bed0dcc";
+				PROVISIONING_PROFILE_SPECIFIER = "WildCard(Dev)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -297,11 +370,17 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = XWNPFKK4U5;
+				HEADER_SEARCH_PATHS = "${SDK_ROOT}/usr/include/libxml2";
 				INFOPLIST_FILE = NetWork/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.bluelich.NetWork;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "f13f344d-e450-4246-8521-62f5113d7ba1";
+				PROVISIONING_PROFILE_SPECIFIER = "Wildcard(Ad Hoc)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
