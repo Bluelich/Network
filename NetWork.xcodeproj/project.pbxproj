@@ -17,9 +17,10 @@
 		B46F206F1FD289F600F48542 /* libxml2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B46F206E1FD2859900F48542 /* libxml2.tbd */; };
 		B49BC82F1FD9225D0094B258 /* libxml.html in Resources */ = {isa = PBXBuildFile; fileRef = B49BC82E1FD9225D0094B258 /* libxml.html */; };
 		B49BC8331FD923790094B258 /* xcodesamplecode.plist in Resources */ = {isa = PBXBuildFile; fileRef = B49BC8321FD923790094B258 /* xcodesamplecode.plist */; };
+		B4AD15C71FDB86B700CD28E2 /* libxmlParser.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AD15C51FDB86B700CD28E2 /* libxmlParser.m */; };
+		B4AD16011FDB964600CD28E2 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B4AD16001FDB964600CD28E2 /* libiconv.tbd */; };
 		B4AFA21B1FD52D7A004B062E /* IMSIXMLParser.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA2111FD52D7A004B062E /* IMSIXMLParser.m */; };
 		B4AFA21C1FD52D7A004B062E /* IMSIManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA2121FD52D7A004B062E /* IMSIManager.m */; };
-		B4AFA21D1FD52D7A004B062E /* libxmlParser.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA2131FD52D7A004B062E /* libxmlParser.m */; };
 		B4AFA2201FD52D7A004B062E /* PLMN.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA21A1FD52D7A004B062E /* PLMN.m */; };
 /* End PBXBuildFile section */
 
@@ -39,11 +40,39 @@
 		B46F206E1FD2859900F48542 /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		B49BC82E1FD9225D0094B258 /* libxml.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = libxml.html; sourceTree = "<group>"; };
 		B49BC8321FD923790094B258 /* xcodesamplecode.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = xcodesamplecode.plist; sourceTree = "<group>"; };
+		B4AD15C51FDB86B700CD28E2 /* libxmlParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = libxmlParser.m; sourceTree = "<group>"; };
+		B4AD15C61FDB86B700CD28E2 /* libxmlParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libxmlParser.h; sourceTree = "<group>"; };
+		B4AD15C91FDB86F500CD28E2 /* io2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = io2.c; sourceTree = "<group>"; };
+		B4AD15CB1FDB874F00CD28E2 /* testWriter.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = testWriter.c; sourceTree = "<group>"; };
+		B4AD15CD1FDB877A00CD28E2 /* io1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = io1.c; sourceTree = "<group>"; };
+		B4AD15CF1FDB879600CD28E2 /* parse3.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = parse3.c; sourceTree = "<group>"; };
+		B4AD15D11FDB87AD00CD28E2 /* parse4.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = parse4.c; sourceTree = "<group>"; };
+		B4AD15D31FDB87C500CD28E2 /* parse2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = parse2.c; sourceTree = "<group>"; };
+		B4AD15D51FDB87E600CD28E2 /* parse1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = parse1.c; sourceTree = "<group>"; };
+		B4AD15D71FDB87FB00CD28E2 /* tree2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tree2.c; sourceTree = "<group>"; };
+		B4AD15D91FDB881100CD28E2 /* tree1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tree1.c; sourceTree = "<group>"; };
+		B4AD15DB1FDB882300CD28E2 /* xpath1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = xpath1.c; sourceTree = "<group>"; };
+		B4AD15DD1FDB883400CD28E2 /* xpath2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = xpath2.c; sourceTree = "<group>"; };
+		B4AD15DF1FDB884D00CD28E2 /* reader2.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = reader2.c; sourceTree = "<group>"; };
+		B4AD15E11FDB886300CD28E2 /* reader1.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = reader1.c; sourceTree = "<group>"; };
+		B4AD15E31FDB887D00CD28E2 /* reader3.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = reader3.c; sourceTree = "<group>"; };
+		B4AD15E51FDB889200CD28E2 /* reader4.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = reader4.c; sourceTree = "<group>"; };
+		B4AD15E71FDB892E00CD28E2 /* readme.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
+		B4AD15EA1FDB8B9200CD28E2 /* CreateXmlFile_cn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateXmlFile_cn.cpp; sourceTree = "<group>"; };
+		B4AD15EB1FDB8B9200CD28E2 /* XPathForXmlFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XPathForXmlFile.cpp; sourceTree = "<group>"; };
+		B4AD15EC1FDB8B9200CD28E2 /* MAKEFILE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MAKEFILE; sourceTree = "<group>"; };
+		B4AD15ED1FDB8B9200CD28E2 /* wxb_codeConv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = wxb_codeConv.c; sourceTree = "<group>"; };
+		B4AD15EE1FDB8B9200CD28E2 /* CreatedXml_cn.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = CreatedXml_cn.xml; sourceTree = "<group>"; };
+		B4AD15EF1FDB8B9200CD28E2 /* ChangeXmlFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChangeXmlFile.cpp; sourceTree = "<group>"; };
+		B4AD15F01FDB8B9200CD28E2 /* CreatedXml.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = CreatedXml.xml; sourceTree = "<group>"; };
+		B4AD15F11FDB8B9200CD28E2 /* ChangedXml.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = ChangedXml.xml; sourceTree = "<group>"; };
+		B4AD15F21FDB8B9200CD28E2 /* 1.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = 1.xml; sourceTree = "<group>"; };
+		B4AD15F31FDB8B9200CD28E2 /* ParseXmlFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ParseXmlFile.cpp; sourceTree = "<group>"; };
+		B4AD15F41FDB8B9200CD28E2 /* CreateXmlFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CreateXmlFile.cpp; sourceTree = "<group>"; };
+		B4AD16001FDB964600CD28E2 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
 		B4AFA2111FD52D7A004B062E /* IMSIXMLParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSIXMLParser.m; sourceTree = "<group>"; };
 		B4AFA2121FD52D7A004B062E /* IMSIManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSIManager.m; sourceTree = "<group>"; };
-		B4AFA2131FD52D7A004B062E /* libxmlParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = libxmlParser.m; sourceTree = "<group>"; };
 		B4AFA2141FD52D7A004B062E /* PLMN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLMN.h; sourceTree = "<group>"; };
-		B4AFA2161FD52D7A004B062E /* libxmlParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libxmlParser.h; sourceTree = "<group>"; };
 		B4AFA2171FD52D7A004B062E /* IMSIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSIManager.h; sourceTree = "<group>"; };
 		B4AFA2181FD52D7A004B062E /* IMSIXMLParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSIXMLParser.h; sourceTree = "<group>"; };
 		B4AFA21A1FD52D7A004B062E /* PLMN.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLMN.m; sourceTree = "<group>"; };
@@ -54,6 +83,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4AD16011FDB964600CD28E2 /* libiconv.tbd in Frameworks */,
 				B46F206F1FD289F600F48542 /* libxml2.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -101,6 +131,7 @@
 		B46F206D1FD2859900F48542 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B4AD16001FDB964600CD28E2 /* libiconv.tbd */,
 				B46F206E1FD2859900F48542 /* libxml2.tbd */,
 			);
 			name = Frameworks;
@@ -114,17 +145,68 @@
 			path = MarkdownPreview;
 			sourceTree = "<group>";
 		};
+		B4AD15C41FDB86B700CD28E2 /* libxml2 */ = {
+			isa = PBXGroup;
+			children = (
+				B4AD15C61FDB86B700CD28E2 /* libxmlParser.h */,
+				B4AD15C51FDB86B700CD28E2 /* libxmlParser.m */,
+				B4AD15C81FDB86DA00CD28E2 /* Example */,
+			);
+			path = libxml2;
+			sourceTree = "<group>";
+		};
+		B4AD15C81FDB86DA00CD28E2 /* Example */ = {
+			isa = PBXGroup;
+			children = (
+				B4AD15E91FDB8B9200CD28E2 /* xml_src */,
+				B4AD15CB1FDB874F00CD28E2 /* testWriter.c */,
+				B4AD15CD1FDB877A00CD28E2 /* io1.c */,
+				B4AD15C91FDB86F500CD28E2 /* io2.c */,
+				B4AD15D91FDB881100CD28E2 /* tree1.c */,
+				B4AD15D71FDB87FB00CD28E2 /* tree2.c */,
+				B4AD15DB1FDB882300CD28E2 /* xpath1.c */,
+				B4AD15DD1FDB883400CD28E2 /* xpath2.c */,
+				B4AD15D51FDB87E600CD28E2 /* parse1.c */,
+				B4AD15D31FDB87C500CD28E2 /* parse2.c */,
+				B4AD15CF1FDB879600CD28E2 /* parse3.c */,
+				B4AD15D11FDB87AD00CD28E2 /* parse4.c */,
+				B4AD15E11FDB886300CD28E2 /* reader1.c */,
+				B4AD15DF1FDB884D00CD28E2 /* reader2.c */,
+				B4AD15E31FDB887D00CD28E2 /* reader3.c */,
+				B4AD15E51FDB889200CD28E2 /* reader4.c */,
+				B4AD15E71FDB892E00CD28E2 /* readme.md */,
+			);
+			path = Example;
+			sourceTree = "<group>";
+		};
+		B4AD15E91FDB8B9200CD28E2 /* xml_src */ = {
+			isa = PBXGroup;
+			children = (
+				B4AD15F21FDB8B9200CD28E2 /* 1.xml */,
+				B4AD15F01FDB8B9200CD28E2 /* CreatedXml.xml */,
+				B4AD15F11FDB8B9200CD28E2 /* ChangedXml.xml */,
+				B4AD15EE1FDB8B9200CD28E2 /* CreatedXml_cn.xml */,
+				B4AD15EA1FDB8B9200CD28E2 /* CreateXmlFile_cn.cpp */,
+				B4AD15EB1FDB8B9200CD28E2 /* XPathForXmlFile.cpp */,
+				B4AD15ED1FDB8B9200CD28E2 /* wxb_codeConv.c */,
+				B4AD15EF1FDB8B9200CD28E2 /* ChangeXmlFile.cpp */,
+				B4AD15F31FDB8B9200CD28E2 /* ParseXmlFile.cpp */,
+				B4AD15F41FDB8B9200CD28E2 /* CreateXmlFile.cpp */,
+				B4AD15EC1FDB8B9200CD28E2 /* MAKEFILE */,
+			);
+			path = xml_src;
+			sourceTree = "<group>";
+		};
 		B4AFA2101FD52D7A004B062E /* PLMN */ = {
 			isa = PBXGroup;
 			children = (
+				B4AD15C41FDB86B700CD28E2 /* libxml2 */,
 				B4AFA2141FD52D7A004B062E /* PLMN.h */,
 				B4AFA21A1FD52D7A004B062E /* PLMN.m */,
 				B4AFA2171FD52D7A004B062E /* IMSIManager.h */,
 				B4AFA2121FD52D7A004B062E /* IMSIManager.m */,
 				B4AFA2181FD52D7A004B062E /* IMSIXMLParser.h */,
 				B4AFA2111FD52D7A004B062E /* IMSIXMLParser.m */,
-				B4AFA2161FD52D7A004B062E /* libxmlParser.h */,
-				B4AFA2131FD52D7A004B062E /* libxmlParser.m */,
 				B49BC82E1FD9225D0094B258 /* libxml.html */,
 			);
 			path = PLMN;
@@ -205,11 +287,11 @@
 			files = (
 				B4AFA2201FD52D7A004B062E /* PLMN.m in Sources */,
 				B45B37CB1FD0023100A79E6D /* ViewController.m in Sources */,
-				B4AFA21D1FD52D7A004B062E /* libxmlParser.m in Sources */,
 				B45B37D61FD0023100A79E6D /* main.m in Sources */,
 				B45B37DE1FD0028800A79E6D /* NetWorkStatusManager.m in Sources */,
 				B4AFA21C1FD52D7A004B062E /* IMSIManager.m in Sources */,
 				B4AFA21B1FD52D7A004B062E /* IMSIXMLParser.m in Sources */,
+				B4AD15C71FDB86B700CD28E2 /* libxmlParser.m in Sources */,
 				B45B37C81FD0023100A79E6D /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
