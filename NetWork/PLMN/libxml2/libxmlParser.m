@@ -11,6 +11,17 @@
 #import <libxml2/libxml/tree.h>
 #import <libxml2/libxml/xpath.h>
 #import <iconv.h>
+
+
+/*
+ http://blog.csdn.net/pbymw8iwm/article/details/7899156
+ http://blog.csdn.net/shanzhizi/article/details/7726679
+ https://www.cnblogs.com/Anker/p/3542058.html
+ http://www.blogjava.net/wxb_nudt/archive/2007/11/18/161340.html
+ http://blog.csdn.net/veryhehe2011/article/details/23272927
+ http://www.gnu.org/savannah-checkouts/gnu/libiconv/documentation/libiconv-1.15/iconvctl.3.html
+ */
+
 /*
  1.内部字符类型xmlChar
  xmlChar是Libxml2中的字符类型，库中所有字符、字符串都是基于这个数据类型。事实上他的定义是 : typedef unsigned char xmlChar;
