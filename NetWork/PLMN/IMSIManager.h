@@ -7,13 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-
-@class PLMN;
+#import "PLMN.h"
 
 @interface IMSIManager : NSObject
 
 @property (class,nonatomic,strong,readonly) NSArray<PLMN *> *allPMLNs;
 
 + (BOOL)update:(NSError **)error;
+
++ (PLMN *)infoForMCC:(NSString *)MCC MNC:(NSString *)MNC;
 
 @end

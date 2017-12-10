@@ -18,18 +18,6 @@
  IMSI = MCC + MNC + MSIN
         ---------
            PLMN
- 
- MCC    MNC    运营商
- 460    00    中国移动
- 460    01    中国联通
- 460    02    中国移动
- 460    03    中国电信
- 460    04    中国卫通
- 460    05    中国电信
- 460    06    中国联通
- 460    07    中国移动
-//460    11    中国电信
- 460    20    中国铁通
  */
 NS_ASSUME_NONNULL_BEGIN
 @interface PLMN : NSObject
@@ -46,14 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
 //运营商网络名称
 @property (nullable, nonatomic, copy, readonly) NSString  *network;
 //移动用户识别代码
-@property (nullable, nonatomic, copy, readonly) NSString  *MSIN;
+@property (nullable, nonatomic, copy) NSString  *MSIN;
 
 - (instancetype)initWithMCC:(NSString *)MCC
                         MNC:(NSString *)MNC
                         ISO:(NSString *)ISO
                     country:(NSString *)country
                 countryCode:(nullable NSString *)countryCode
-                    network:(nullable NSString *)network
-                       MSIN:(nullable NSString *)MSIN;
+                    network:(nullable NSString *)network;
 @end
 NS_ASSUME_NONNULL_END

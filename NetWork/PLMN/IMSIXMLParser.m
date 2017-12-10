@@ -85,8 +85,7 @@
                                            ISO:dic[_attr[2]]
                                        country:dic[_attr[3]]
                                    countryCode:dic[_attr[4]]
-                                       network:dic[_attr[5]]
-                                          MSIN:nil];
+                                       network:dic[_attr[5]]];
         [_results addObject:plmn];
     }
 }
