@@ -7,10 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "IMSI.h"
 
-@class PLMN;
 @interface IMSIXMLParser : NSXMLParser
 
-@property (nonatomic,strong,readonly) NSArray<PLMN *> *results;
+@property (nonatomic,strong,readonly) NSArray<IMSI *> *results;
 
 @end

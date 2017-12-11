@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		2A2537AB1FDC4508004CACC9 /* libxml.html in Resources */ = {isa = PBXBuildFile; fileRef = 2A2537AA1FDC4508004CACC9 /* libxml.html */; };
+		B42A3C241FDE22B700A5F726 /* WiFi.m in Sources */ = {isa = PBXBuildFile; fileRef = B42A3C231FDE22B700A5F726 /* WiFi.m */; };
+		B43C807D1FDE690C007EEE14 /* NetWorkStatusManagerDefination.m in Sources */ = {isa = PBXBuildFile; fileRef = B43C807C1FDE690C007EEE14 /* NetWorkStatusManagerDefination.m */; };
 		B45B37C81FD0023100A79E6D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B45B37C71FD0023100A79E6D /* AppDelegate.m */; };
 		B45B37CB1FD0023100A79E6D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B45B37CA1FD0023100A79E6D /* ViewController.m */; };
 		B45B37CE1FD0023100A79E6D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B45B37CC1FD0023100A79E6D /* Main.storyboard */; };
@@ -21,11 +23,15 @@
 		B4AD16011FDB964600CD28E2 /* libiconv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B4AD16001FDB964600CD28E2 /* libiconv.tbd */; };
 		B4AFA21B1FD52D7A004B062E /* IMSIXMLParser.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA2111FD52D7A004B062E /* IMSIXMLParser.m */; };
 		B4AFA21C1FD52D7A004B062E /* IMSIManager.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA2121FD52D7A004B062E /* IMSIManager.m */; };
-		B4AFA2201FD52D7A004B062E /* PLMN.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA21A1FD52D7A004B062E /* PLMN.m */; };
+		B4AFA2201FD52D7A004B062E /* IMSI.m in Sources */ = {isa = PBXBuildFile; fileRef = B4AFA21A1FD52D7A004B062E /* IMSI.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		2A2537AA1FDC4508004CACC9 /* libxml.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = libxml.html; sourceTree = "<group>"; };
+		B42A3C221FDE22B700A5F726 /* WiFi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WiFi.h; sourceTree = "<group>"; };
+		B42A3C231FDE22B700A5F726 /* WiFi.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WiFi.m; sourceTree = "<group>"; };
+		B43C807B1FDE690C007EEE14 /* NetWorkStatusManagerDefination.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NetWorkStatusManagerDefination.h; sourceTree = "<group>"; };
+		B43C807C1FDE690C007EEE14 /* NetWorkStatusManagerDefination.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NetWorkStatusManagerDefination.m; sourceTree = "<group>"; };
 		B45B37C31FD0023100A79E6D /* NetWork.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NetWork.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B45B37C61FD0023100A79E6D /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		B45B37C71FD0023100A79E6D /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -72,10 +78,10 @@
 		B4AD16001FDB964600CD28E2 /* libiconv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.tbd; path = usr/lib/libiconv.tbd; sourceTree = SDKROOT; };
 		B4AFA2111FD52D7A004B062E /* IMSIXMLParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSIXMLParser.m; sourceTree = "<group>"; };
 		B4AFA2121FD52D7A004B062E /* IMSIManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSIManager.m; sourceTree = "<group>"; };
-		B4AFA2141FD52D7A004B062E /* PLMN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PLMN.h; sourceTree = "<group>"; };
+		B4AFA2141FD52D7A004B062E /* IMSI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSI.h; sourceTree = "<group>"; };
 		B4AFA2171FD52D7A004B062E /* IMSIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSIManager.h; sourceTree = "<group>"; };
 		B4AFA2181FD52D7A004B062E /* IMSIXMLParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IMSIXMLParser.h; sourceTree = "<group>"; };
-		B4AFA21A1FD52D7A004B062E /* PLMN.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PLMN.m; sourceTree = "<group>"; };
+		B4AFA21A1FD52D7A004B062E /* IMSI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IMSI.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,6 +97,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B42A3C211FDE227D00A5F726 /* WIFI */ = {
+			isa = PBXGroup;
+			children = (
+				B42A3C221FDE22B700A5F726 /* WiFi.h */,
+				B42A3C231FDE22B700A5F726 /* WiFi.m */,
+			);
+			path = WIFI;
+			sourceTree = "<group>";
+		};
 		B45B37BA1FD0023100A79E6D = {
 			isa = PBXGroup;
 			children = (
@@ -117,8 +132,11 @@
 				B45B37CA1FD0023100A79E6D /* ViewController.m */,
 				B45B37DC1FD0028700A79E6D /* NetWorkStatusManager.h */,
 				B45B37DD1FD0028800A79E6D /* NetWorkStatusManager.m */,
+				B43C807B1FDE690C007EEE14 /* NetWorkStatusManagerDefination.h */,
+				B43C807C1FDE690C007EEE14 /* NetWorkStatusManagerDefination.m */,
 				B49BC8311FD9235D0094B258 /* MarkdownPreview */,
-				B4AFA2101FD52D7A004B062E /* PLMN */,
+				B42A3C211FDE227D00A5F726 /* WIFI */,
+				B4AFA2101FD52D7A004B062E /* IMSI */,
 				B45B37CC1FD0023100A79E6D /* Main.storyboard */,
 				B45B37CF1FD0023100A79E6D /* Assets.xcassets */,
 				B45B37D11FD0023100A79E6D /* LaunchScreen.storyboard */,
@@ -198,18 +216,18 @@
 			path = xml_src;
 			sourceTree = "<group>";
 		};
-		B4AFA2101FD52D7A004B062E /* PLMN */ = {
+		B4AFA2101FD52D7A004B062E /* IMSI */ = {
 			isa = PBXGroup;
 			children = (
 				B4AD15C41FDB86B700CD28E2 /* libxml2 */,
-				B4AFA2141FD52D7A004B062E /* PLMN.h */,
-				B4AFA21A1FD52D7A004B062E /* PLMN.m */,
+				B4AFA2141FD52D7A004B062E /* IMSI.h */,
+				B4AFA21A1FD52D7A004B062E /* IMSI.m */,
 				B4AFA2171FD52D7A004B062E /* IMSIManager.h */,
 				B4AFA2121FD52D7A004B062E /* IMSIManager.m */,
 				B4AFA2181FD52D7A004B062E /* IMSIXMLParser.h */,
 				B4AFA2111FD52D7A004B062E /* IMSIXMLParser.m */,
 			);
-			path = PLMN;
+			path = IMSI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -285,14 +303,16 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B4AFA2201FD52D7A004B062E /* PLMN.m in Sources */,
+				B4AFA2201FD52D7A004B062E /* IMSI.m in Sources */,
 				B45B37CB1FD0023100A79E6D /* ViewController.m in Sources */,
+				B43C807D1FDE690C007EEE14 /* NetWorkStatusManagerDefination.m in Sources */,
 				B45B37D61FD0023100A79E6D /* main.m in Sources */,
 				B45B37DE1FD0028800A79E6D /* NetWorkStatusManager.m in Sources */,
 				B4AFA21C1FD52D7A004B062E /* IMSIManager.m in Sources */,
 				B4AFA21B1FD52D7A004B062E /* IMSIXMLParser.m in Sources */,
 				B4AD15C71FDB86B700CD28E2 /* libxmlParser.m in Sources */,
 				B45B37C81FD0023100A79E6D /* AppDelegate.m in Sources */,
+				B42A3C241FDE22B700A5F726 /* WiFi.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

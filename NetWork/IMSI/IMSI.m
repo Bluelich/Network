@@ -1,14 +1,14 @@
 //
-//  PLMN.m
+//  IMSI.m
 //  NetWork
 //
 //  Created by zhouqiang on 02/12/2017.
 //  Copyright © 2017 Bluelich. All rights reserved.
 //
 
-#import "PLMN.h"
+#import "IMSI.h"
 
-@interface PLMN ()
+@interface IMSI ()
 @property (nonatomic, copy) NSString  *MCC;
 @property (nonatomic, copy) NSString  *MNC;
 @property (nonatomic, copy) NSString  *ISO;
@@ -17,7 +17,7 @@
 @property (nullable, nonatomic, copy) NSString  *network;
 @end
 
-@implementation PLMN
+@implementation IMSI
 
 - (instancetype)initWithMCC:(NSString *)MCC
                         MNC:(NSString *)MNC

@@ -7,14 +7,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "PLMN.h"
+#import "IMSIXMLParser.h"
 
 @interface IMSIManager : NSObject
 
-@property (class,nonatomic,strong,readonly) NSArray<PLMN *> *allPMLNs;
+@property (class,nonatomic,strong,readonly) NSArray<IMSI *> *allPMLNs;
 
 + (BOOL)update:(NSError **)error;
 
-+ (PLMN *)infoForMCC:(NSString *)MCC MNC:(NSString *)MNC;
++ (IMSI *)infoForMCC:(NSString *)MCC MNC:(NSString *)MNC;
 
 @end

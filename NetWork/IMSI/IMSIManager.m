@@ -12,7 +12,7 @@
 static NSString * const kIMSI_PLMN_RESOURCE_URL = @"http://www.mcc-mnc.com/";
 @interface IMSIManager ()
 @property (class,nonatomic,strong,readonly) IMSIManager  *shared;
-@property (nonatomic,strong) NSArray<PLMN *> *data;
+@property (nonatomic,strong) NSArray<IMSI *> *data;
 @property (nonatomic,strong) NSString  *filePath;
 @end
 
@@ -37,7 +37,7 @@ static NSString * const kIMSI_PLMN_RESOURCE_URL = @"http://www.mcc-mnc.com/";
     });
     return manager;
 }
-+ (NSArray<PLMN *> *)allPMLNs
++ (NSArray<IMSI *> *)allPMLNs
 {
     return IMSIManager.shared.data;
 }
@@ -60,18 +60,18 @@ static NSString * const kIMSI_PLMN_RESOURCE_URL = @"http://www.mcc-mnc.com/";
     [data writeToFile:IMSIManager.shared.filePath atomically:YES];
     return [IMSIManager.shared updateWithData:data error:err];
 }
-+ (PLMN *)infoForMCC:(NSString *)MCC MNC:(NSString *)MNC
++ (IMSI *)infoForMCC:(NSString *)MCC MNC:(NSString *)MNC
 {
     return [self.shared infoForMCC:MCC MNC:MNC];
 }
 #pragma mark -
-- (PLMN *)infoForMCC:(NSString *)MCC MNC:(NSString *)MNC
+- (IMSI *)infoForMCC:(NSString *)MCC MNC:(NSString *)MNC
 {
     if (self.data.count == 0) {
         return nil;
     }
-    __block PLMN *res = nil;
-    [self.data enumerateObjectsUsingBlock:^(PLMN * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    __block IMSI *res = nil;
+    [self.data enumerateObjectsUsingBlock:^(IMSI * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if ([obj.MCC isEqualToString:MCC] && [obj.MNC isEqualToString:MNC]) {
             res = obj;
             *stop = YES;

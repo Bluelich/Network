@@ -1,5 +1,5 @@
 //
-//  PLMN.h
+//  IMSI.h
 //  NetWork
 //
 //  Created by zhouqiang on 02/12/2017.
@@ -20,7 +20,7 @@
            PLMN
  */
 NS_ASSUME_NONNULL_BEGIN
-@interface PLMN : NSObject
+@interface IMSI : NSObject
 //
 @property (nonatomic, copy, readonly) NSString  *MCC;
 //

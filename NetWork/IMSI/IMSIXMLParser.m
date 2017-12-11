@@ -7,7 +7,6 @@
 //
 
 #import "IMSIXMLParser.h"
-#import "PLMN.h"
 
 @interface IMSIXMLParser ()<NSXMLParserDelegate>
 {
@@ -15,7 +14,7 @@
     NSMutableArray  *_attr;
     NSMutableArray<NSString *>  *_each;
     NSMutableString  *_element_tr_td_content;
-    NSMutableArray<PLMN *> *_results;
+    NSMutableArray<IMSI *> *_results;
 }
 @property (nonatomic,strong) NSMutableArray<NSDictionary *> *parserResult;
 
@@ -80,7 +79,7 @@
 {
     _results = [NSMutableArray array];
     for (NSDictionary *dic in self.parserResult) {
-        PLMN *plmn = [[PLMN alloc] initWithMCC:dic[_attr[0]]
+        IMSI *plmn = [[IMSI alloc] initWithMCC:dic[_attr[0]]
                                            MNC:dic[_attr[1]]
                                            ISO:dic[_attr[2]]
                                        country:dic[_attr[3]]

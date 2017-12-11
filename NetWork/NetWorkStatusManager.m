@@ -7,199 +7,45 @@
 //
 
 #import "NetWorkStatusManager.h"
-#import <SystemConfiguration/SystemConfiguration.h>
-#import <SystemConfiguration/CaptiveNetwork.h>
-#import <CoreTelephony/CTTelephonyNetworkInfo.h>
-#import <CoreTelephony/CTCarrier.h>
-#import <sys/socket.h>
-#import <netinet/in.h>
-#import <netinet6/in6.h>
-#import <arpa/inet.h>
-#import <ifaddrs.h>
-#import <netdb.h>
-#import "IMSIManager.h"
-#if    TARGET_OS_IPHONE
-    #import <UIKit/UIKit.h>
-#endif
-typedef NS_ENUM(NSInteger, NetworkStatus) {
-    ReachableUnknow = -1,
-    NotReachable    = 0,
-    ReachableViaWiFi,
-    ReachableViaWWAN,
-    ReachableVia2G,
-    ReachableVia3G,
-    ReachableVia4G
-};
-NetworkStatus NetworkStatusFromRadioAccess(NSString *radioAccessTechnology){
-    /*
-     //2G
-     CTRadioAccessTechnologyGPRS
-     CTRadioAccessTechnologyEdge
-     //3G
-     CTRadioAccessTechnologyWCDMA
-     CTRadioAccessTechnologyHSDPA
-     CTRadioAccessTechnologyHSUPA
-     CTRadioAccessTechnologyCDMA1x
-     CTRadioAccessTechnologyCDMAEVDORev0
-     CTRadioAccessTechnologyCDMAEVDORevA
-     CTRadioAccessTechnologyCDMAEVDORevB
-     //4G
-     CTRadioAccessTechnologyeHRPD
-     CTRadioAccessTechnologyLTE
-     */
-    if (!radioAccessTechnology) {
-        return NotReachable;
-    }
-    if ([radioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE] ||
-        [radioAccessTechnology isEqualToString:CTRadioAccessTechnologyeHRPD]) {
-        return ReachableVia4G;
-    }else if ([radioAccessTechnology isEqualToString:CTRadioAccessTechnologyEdge]||
-              [radioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]){
-        return ReachableVia2G;
-    }else{
-        return ReachableVia3G;
-    }
-}
-BOOL ConnectedToInternet(){
-    //创建0.0.0.0的地址,查询本机网络连接状态
-    struct sockaddr_in zeroAddress;
-    bzero(&zeroAddress, sizeof(zeroAddress));
-    zeroAddress.sin_len = sizeof(zeroAddress);
-    zeroAddress.sin_family = AF_INET;
-    SCNetworkReachabilityRef defaultRouteReachability = SCNetworkReachabilityCreateWithAddress(NULL, (struct sockaddr *)&zeroAddress);
-    SCNetworkReachabilityFlags flags;
-    BOOL didRetrieveFlags = SCNetworkReachabilityGetFlags(defaultRouteReachability, &flags);
-    CFRelease(defaultRouteReachability);
-    if (!didRetrieveFlags) {
-        return NO;
-    }
-    BOOL isReachable = flags & kSCNetworkFlagsReachable;
-    BOOL needsConnection = flags & kSCNetworkFlagsConnectionRequired;
-    return isReachable && !needsConnection;
-}
-static NetworkStatus NetworkStatusForFlags(SCNetworkReachabilityFlags flags) {
-    /*!
-     TransientConnection:指定的节点或地址可以通过瞬态连接(如PPP)到达。
-     Reachable:指定的节点或地址可以使用当前网络配置进行访问。
-     ConnectionRequired:须先建立连接.ConnectionOnTraffic,ConnectionOnDemand,IsWWAN通常也会被设置.如果用户必须手动进行连接,则还会设置InterventionRequired
-     例如,这个状态将返回一个拨号当前未激活的连接, 但可以处理目标系统的网络通信量。
-     ConnectionOnTraffic:须先建立连接.任何传输指示指定的名称或地址将启动连接。
-     InterventionRequired:须先建立连接.此外,需要用户操作来建立连接,如提供密码、身份验证等。
-     注: 目前,会返回 仅在配置kSCNetworkReachabilityFlagsConnectionOnTraffic时,已尝试连接,并在尝试自动连接时发生了错误.这时,PPP控制器将停止建立连接的尝试,直到用户干预。
-     ConnectionOnDemand:须先建立连接。仅会通过CFSocketStream按需建立连接
-     IsLocalAddress:本地连接
-     IsDirect:不走网关,直连
-     IsWWAN:蜂窝网络
-     */
-    BOOL isReachable = flags & kSCNetworkReachabilityFlagsReachable;
-    BOOL needsConnection = flags & kSCNetworkReachabilityFlagsConnectionRequired;
-    BOOL canConnectAutomatically = ((flags & kSCNetworkReachabilityFlagsConnectionOnDemand) ||
-                                    (flags & kSCNetworkReachabilityFlagsConnectionOnTraffic));
-    BOOL canConnectWithoutUserInteraction = (canConnectAutomatically && (flags & kSCNetworkReachabilityFlagsInterventionRequired) == 0);
-    BOOL isNetworkReachable = (isReachable && (!needsConnection || canConnectWithoutUserInteraction));
-    if (!isNetworkReachable) {
-        return NotReachable;
-    }
-#if    TARGET_OS_IPHONE
-    else if (flags & kSCNetworkReachabilityFlagsIsWWAN){
-        return ReachableViaWWAN;
-    }
-#endif
-    else{
-        return ReachableViaWiFi;
-    }
-}
-/*
- * 判断当前网络状态下,是否有HTTP/HTTPS代理
- */
-BOOL NetworkHasAgentProxy(){
-    CFStringRef domain = CFStringCreateWithCString(kCFAllocatorDefault, "http://www.apple.com", kCFStringEncodingUTF8);
-    CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault, domain, NULL);
-    CFArrayRef proxies = CFNetworkCopyProxiesForURL(url,CFNetworkCopySystemProxySettings());
-    CFIndex count = CFArrayGetCount(proxies);
-    for (int idx = 0; idx < count; idx++) {
-        CFDictionaryRef proxy = CFArrayGetValueAtIndex(proxies, idx);
-        /*
-         kCFProxyTypeKey -> CFStringRef
-         kCFProxyTypeNone : directly
-         kCFProxyTypeHTTP
-         kCFProxyTypeHTTPS
-         kCFProxyTypeSOCKS
-         kCFProxyTypeFTP
-         kCFProxyTypeAutoConfigurationURL - 由自动配置文件(pac)指定
-         kCFProxyHostNameKey -> CFString
-         kCFProxyPortNumberKey -> CFNumber
-         kCFProxyAutoConfigurationURLKey -> CFURL when proxyType:kCFProxyTypeAutoConfigurationURL
-         kCFProxyAutoConfigurationJavaScriptKey -> CFString full JavaScript text
-         kCFProxyUsernameKey -> CFString
-         kCFProxyPasswordKey -> CFString
-         kCFProxyTypeAutoConfigurationJavaScript -> kCFProxyTypeAutoConfigurationJavaScript
-         kCFProxyAutoConfigurationHTTPResponseKey -> kCFProxyAutoConfigHTTPResponse
-         //Mac Only
-         kCFNetworkProxiesExceptionsList -> CFArray of CFStrings
-         kCFNetworkProxiesExcludeSimpleHostnames -> CFNumber
-         kCFNetworkProxiesFTPEnable -> CFNumber
-         kCFNetworkProxiesFTPPassive -> CFNumber
-         kCFNetworkProxiesFTPPort -> CFNumber
-         kCFNetworkProxiesFTPProxy -> CFString
-         kCFNetworkProxiesGopherEnable -> CFNumber
-         kCFNetworkProxiesGopherPort -> CFNumber
-         kCFNetworkProxiesGopherProxy -> CFString
-         kCFNetworkProxiesHTTPEnable -> CFNumber
-         kCFNetworkProxiesHTTPPort -> CFNumber
-         kCFNetworkProxiesHTTPProxy -> CFString
-         kCFNetworkProxiesHTTPSEnable -> CFNumber
-         kCFNetworkProxiesHTTPSPort -> CFNumber
-         kCFNetworkProxiesHTTPSProxy -> CFString
-         kCFNetworkProxiesRTSPEnable -> CFNumber
-         kCFNetworkProxiesRTSPPort -> CFNumber
-         kCFNetworkProxiesRTSPProxy -> CFString
-         kCFNetworkProxiesSOCKSEnable -> CFNumber
-         kCFNetworkProxiesSOCKSPort -> CFNumber
-         kCFNetworkProxiesSOCKSProxy -> CFString
-         kCFNetworkProxiesProxyAutoConfigEnable -> CFNumber
-         kCFNetworkProxiesProxyAutoConfigURLString -> CFString
-         kCFNetworkProxiesProxyAutoConfigJavaScript -> CFString
-         kCFNetworkProxiesProxyAutoDiscoveryEnable -> CFNumber
-         */
-        CFStringRef type = CFDictionaryGetValue(proxy, kCFProxyTypeKey);
-        if (type != NULL && (type == kCFProxyTypeHTTP || type == kCFProxyTypeHTTPS)) {
-            return YES;
-        }
-        CFStringRef host = CFDictionaryGetValue(proxy, kCFProxyHostNameKey);
-        CFStringRef port = CFDictionaryGetValue(proxy, kCFProxyPortNumberKey);
-        if (host != NULL || port != NULL){
-            return YES;
-        }
-    }
-    return NO;
-}
+
 @interface NetWorkStatusManager ()
-@property (class,nonatomic,strong,readonly) NetWorkStatusManager *shared;
 @property (nonatomic)dispatch_queue_t                 reachabilityQueue;
-@property (nonatomic,assign) NetworkStatus            status;
 @property (nonatomic,  copy) NSString                *ssid;
 @property (nonatomic) SCNetworkReachabilityRef        reachabilityRef;
 @property (nonatomic,strong) CTTelephonyNetworkInfo  *telephonyNetworkInfo;
-@property (nonatomic,strong) PLMN  *cellularProvider;
+@property (nonatomic,assign) NetworkStatus            status;
+@property (nonatomic,strong) IMSI                    *cellularProvider;
+@property (nonatomic,strong) WiFi                    *WiFiInfo;
 @end
+
 @implementation NetWorkStatusManager
 + (NetWorkStatusManager *)shared
 {
     static dispatch_once_t onceToken;
     static NetWorkStatusManager *manager = nil;
     dispatch_once(&onceToken, ^{
-        manager = [NetWorkStatusManager new];
-        manager.reachabilityRef = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, @"www.apple.com".UTF8String);
-        manager.telephonyNetworkInfo = [CTTelephonyNetworkInfo new];
-        manager.reachabilityQueue = dispatch_queue_create("com.bluelich.NetWorkStatusManagerQueue", DISPATCH_QUEUE_SERIAL);
-        [manager updateNetworkStatus];
-        [manager updateSSID];
-        [manager updateCellularProvider];
-        [manager notifyNetworkStatus];
-        [manager notifySimCard];
+        manager = [[NetWorkStatusManager alloc] init];
+        manager.reachabilityRef      = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, @"www.apple.com".UTF8String);
+        manager.reachabilityQueue    = dispatch_queue_create("com.bluelich.NetWorkStatusManagerQueue", DISPATCH_QUEUE_SERIAL);
+        if (manager.reachabilityRef && manager.reachabilityQueue) {
+            SCNetworkReachabilitySetDispatchQueue(manager.reachabilityRef, manager.reachabilityQueue);
+        }
+        manager.telephonyNetworkInfo = [[CTTelephonyNetworkInfo alloc] init];
+        [manager update];
+        [manager notify];
     });
     return manager;
+}
+- (void)update
+{
+    [self updateNetworkStatus];
+    [self updateSSID];
+    [self updateCellularProvider];
+}
+- (void)notify
+{
+    [self notifyNetworkStatus];
+    [self notifySimCard];
 }
 - (void)updateSSID
 {
@@ -207,33 +53,15 @@ BOOL NetworkHasAgentProxy(){
         _ssid = nil;
         return;
     }
-    /*
-     SSID  = wifi name
-     BSSID = mac address
-     ESSID = same like BSSID
-     */
     CFArrayRef interfaces = CNCopySupportedInterfaces();
     CFIndex count = CFArrayGetCount(interfaces);
     for (CFIndex i = 0; i < count; i++) {
         CFStringRef name = CFArrayGetValueAtIndex(interfaces, i);
         CFDictionaryRef info = CNCopyCurrentNetworkInfo(name);
-        CFStringRef bssid = CFDictionaryGetValue(info, kCNNetworkInfoKeyBSSID);
-        if (bssid == NULL) {
-            continue;
-        }
-        CFDataRef data = CFDictionaryGetValue(info, kCNNetworkInfoKeySSIDData);
-        printf("%p",data);
-        CFStringRef ssid = CFDictionaryGetValue(info, kCNNetworkInfoKeySSID);
-        CFIndex len_ssid = CFStringGetLength(ssid);
-        char *ssid_cStr = malloc(len_ssid + 1);
-        CFStringGetCString(ssid, ssid_cStr, len_ssid + 1, kCFStringEncodingUTF8);
-        CFIndex len_bssid = CFStringGetLength(bssid);
-        char *bssid_cStr = malloc(len_bssid + 1);
-        CFStringGetCString(bssid, bssid_cStr, len_bssid + 1, kCFStringEncodingUTF8);
-        unsigned long len = strlen(ssid_cStr) + strlen(bssid_cStr) + 2;
-        char *str = malloc(len);
-        snprintf(str, len, "%s-%s",ssid_cStr,bssid_cStr);
-        _ssid = [NSString stringWithUTF8String:str];
+        NSString *ssid  = (__bridge NSString *)CFDictionaryGetValue(info, kCNNetworkInfoKeySSID);
+        NSString *bssid = (__bridge NSString *)CFDictionaryGetValue(info, kCNNetworkInfoKeyBSSID);
+        NSData   *data  = (__bridge NSData   *)CFDictionaryGetValue(info, kCNNetworkInfoKeySSIDData);
+        self.WiFiInfo = [[WiFi alloc] initWithSSID:ssid BSSID:bssid SSIDData:data];
     }
 }
 - (void)updateCellularProvider
@@ -265,6 +93,13 @@ BOOL NetworkHasAgentProxy(){
 - (void)updateNetworkStatus
 {
     SCNetworkReachabilityFlags flags = 0;
+    /*
+     SCNetworkReachabilityGetFlags是同步的,通过DNS解析来判定网络状况
+     在DNS服务器无法到达或慢速网络上,可能耗时30s以上
+     如果在主线程调用这个函数,20s无响应,则会被watchdog杀死
+     
+     SCNetworkReachability API 目前不提供检测设备级p2p网络支持的方法, 包括 Multipeer 连接、GameKit、游戏中心或对等 NSNetService。
+     */
     if (!SCNetworkReachabilityGetFlags(self.reachabilityRef, &flags)) {
         return;
     }
@@ -286,14 +121,12 @@ static CFStringRef NetworkReachabilityCopyDescriptionCallback(const void *info){
     return CFSTR("context is a block");
 }
 static void NetWorkStatusManagerReachabilityCallback(SCNetworkReachabilityRef __unused target, SCNetworkReachabilityFlags flags, void *info){
-    [NetWorkStatusManager.shared updateSSID];
-    [NetWorkStatusManager.shared updateCellularProvider];
-    [NetWorkStatusManager.shared updateNetworkStatus];
+    [NetWorkStatusManager.shared update];
 }
-- (void)notifyNetworkStatus
+- (BOOL)notifyNetworkStatus
 {
     if (!self.reachabilityRef) {
-        return;
+        return NO;
     }
     void(^block)(void) = ^{
         
@@ -304,20 +137,28 @@ static void NetWorkStatusManagerReachabilityCallback(SCNetworkReachabilityRef __
                                             NetworkReachabilityRetainContextCallback,
                                             NetworkReachabilityReleaseContextCallback,
                                             NetworkReachabilityCopyDescriptionCallback};
-    Boolean success = SCNetworkReachabilitySetCallback(self.reachabilityRef, NetWorkStatusManagerReachabilityCallback, &context);
-    if (!success) {
-        return;
+    if (SCNetworkReachabilitySetCallback(self.reachabilityRef, NetWorkStatusManagerReachabilityCallback, &context) &&
+        SCNetworkReachabilityScheduleWithRunLoop(self.reachabilityRef, CFRunLoopGetMain(), kCFRunLoopCommonModes)) {
+        return YES;
     }
-    SCNetworkReachabilitySetDispatchQueue(self.reachabilityRef, self.reachabilityQueue);
-    SCNetworkReachabilityScheduleWithRunLoop(self.reachabilityRef, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+    return NO;
+}
+- (void)stopNotify
+{
+    self.telephonyNetworkInfo.subscriberCellularProviderDidUpdateNotifier = nil;
+    if (self.reachabilityRef) {
+        SCNetworkReachabilityUnscheduleFromRunLoop(self.reachabilityRef, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+    }
 }
 - (void)notifySimCard
 {
-    __weak typeof(self) weakSelf = self;
-    [self.telephonyNetworkInfo setSubscriberCellularProviderDidUpdateNotifier:^(CTCarrier * _Nonnull carrier) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf updateCellularProvider];
-    }];
+    if (self.telephonyNetworkInfo) {
+        __weak typeof(self) weakSelf = self;
+        self.telephonyNetworkInfo.subscriberCellularProviderDidUpdateNotifier = ^(CTCarrier * _Nonnull carrier){
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            [strongSelf updateCellularProvider];
+        };
+    }
 }
 @end
 /*
