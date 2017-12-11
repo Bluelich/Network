@@ -7,19 +7,34 @@
 //
 
 #import <Foundation/Foundation.h>
-#if    TARGET_OS_IPHONE
-    #import <UIKit/UIKit.h>
-#endif
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <SystemConfiguration/CaptiveNetwork.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #import <CoreTelephony/CTCarrier.h>
-#import <sys/socket.h>
+#if    TARGET_OS_IPHONE
+    #import <UIKit/UIKit.h>
+#endif
+
 #import <netinet/in.h>
 #import <netinet6/in6.h>
+#import <netdb.h>
 #import <arpa/inet.h>
 #import <ifaddrs.h>
-#import <netdb.h>
+
+#import <sys/socket.h>
+#import <sys/sockio.h>
+#import <sys/ioctl.h>
+#import <sys/types.h>
+#import <sys/errno.h>
+
+#import <net/if.h>
+#import <net/if_dl.h>
+#import <net/ethernet.h>
+
+#import <stdio.h>
+#import <stdlib.h>
+#import <unistd.h>
+
 
 typedef NS_ENUM(NSInteger, NetworkStatus) {
     ReachableUnknow = -1,

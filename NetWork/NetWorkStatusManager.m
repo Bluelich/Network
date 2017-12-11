@@ -10,9 +10,9 @@
 
 @interface NetWorkStatusManager ()
 @property (nonatomic)dispatch_queue_t                 reachabilityQueue;
-@property (nonatomic,  copy) NSString                *ssid;
 @property (nonatomic) SCNetworkReachabilityRef        reachabilityRef;
 @property (nonatomic,strong) CTTelephonyNetworkInfo  *telephonyNetworkInfo;
+@property (nonatomic,  copy) NSString                *ssid;
 @property (nonatomic,assign) NetworkStatus            status;
 @property (nonatomic,strong) IMSI                    *cellularProvider;
 @property (nonatomic,strong) WiFi                    *WiFiInfo;
@@ -54,10 +54,16 @@
         return;
     }
     CFArrayRef interfaces = CNCopySupportedInterfaces();
+    if (!interfaces) {
+        return;
+    }
     CFIndex count = CFArrayGetCount(interfaces);
     for (CFIndex i = 0; i < count; i++) {
         CFStringRef name = CFArrayGetValueAtIndex(interfaces, i);
         CFDictionaryRef info = CNCopyCurrentNetworkInfo(name);
+        if (CFDictionaryGetCount(info) == 0) {
+            continue;
+        }
         NSString *ssid  = (__bridge NSString *)CFDictionaryGetValue(info, kCNNetworkInfoKeySSID);
         NSString *bssid = (__bridge NSString *)CFDictionaryGetValue(info, kCNNetworkInfoKeyBSSID);
         NSData   *data  = (__bridge NSData   *)CFDictionaryGetValue(info, kCNNetworkInfoKeySSIDData);
