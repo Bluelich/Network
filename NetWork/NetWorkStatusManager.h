@@ -20,5 +20,6 @@
 @property (nonatomic,assign,readonly) NetworkStatus     status;
 @property (nonatomic,strong,readonly) IMSI             *cellularProvider;
 @property (nonatomic,strong,readonly) WiFi             *WiFiInfo;
+@property (nonatomic,  copy) void(^networkStatusChangedBlock)(NetworkStatus status);
 
 @end

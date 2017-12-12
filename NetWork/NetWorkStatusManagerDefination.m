@@ -9,41 +9,10 @@
 #import "NetWorkStatusManagerDefination.h"
 
 void __releaseCFObject__(CFTypeRef cf){ if (!cf) return; CFRelease(cf);}
-#if    TARGET_OS_IPHONE
-NetworkStatus NetworkStatusFromRadioAccess(NSString *radioAccessTechnology){
-    static NSArray *WWAN_2G = nil;
-    static NSArray *WWAN_3G = nil;
-    static NSArray *WWAN_4G = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        WWAN_2G = @[CTRadioAccessTechnologyGPRS,
-                    CTRadioAccessTechnologyEdge];
-        WWAN_3G = @[CTRadioAccessTechnologyWCDMA,
-                    CTRadioAccessTechnologyHSDPA,
-                    CTRadioAccessTechnologyHSUPA,
-                    CTRadioAccessTechnologyCDMA1x,
-                    CTRadioAccessTechnologyCDMAEVDORev0,
-                    CTRadioAccessTechnologyCDMAEVDORevA,
-                    CTRadioAccessTechnologyCDMAEVDORevB];
-        WWAN_4G = @[CTRadioAccessTechnologyeHRPD,
-                    CTRadioAccessTechnologyLTE];
-    });
-    if (!radioAccessTechnology) {
-        return NotReachable;
-    }
-    if ([WWAN_4G containsObject:radioAccessTechnology]) {
-        return ReachableVia4G;
-    }else if ([WWAN_3G containsObject:radioAccessTechnology]){
-        return ReachableVia3G;
-    }else if ([WWAN_2G containsObject:radioAccessTechnology]){
-        return ReachableVia2G;
-    }else{
-        return NotReachable;
-    }
-}
-#endif
 BOOL ConnectedToInternet(){
-#if (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED >= 90000) || (defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && __MAC_OS_X_VERSION_MIN_REQUIRED >= 101100)
+    //创建0.0.0.0的地址,查询本机网络连接状态
+#if (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED >= 90000) ||\
+    (defined(__MAC_OS_X_VERSION_MIN_REQUIRED)  && __MAC_OS_X_VERSION_MIN_REQUIRED  >= 101100)
     struct sockaddr_in6 address;
     bzero(&address, sizeof(address));
     address.sin6_len = sizeof(address);
@@ -65,7 +34,6 @@ BOOL ConnectedToInternet(){
 //    address.sin_addr.s_addr = htonl(IN_LINKLOCALNETNUM);
 //    address.sin_zero;
 #endif
-    //创建0.0.0.0的地址,查询本机网络连接状态
     SCNetworkReachabilityRef defaultRouteReachability = SCNetworkReachabilityCreateWithAddress(NULL, (struct sockaddr *)&address);
     SCNetworkReachabilityFlags flags;
     BOOL didRetrieveFlags = SCNetworkReachabilityGetFlags(defaultRouteReachability, &flags);
@@ -111,7 +79,7 @@ NetworkStatus NetworkStatusForFlags(SCNetworkReachabilityFlags flags) {
         //如果不需要用户的干预就可以连接,则是Wi-Fi
         status = ReachableViaWiFi;
     }
-#if    TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
     if (flags & kSCNetworkReachabilityFlagsIsWWAN){
         //如果调用应用程序使用的是CFNetwork的API,WWAN连接是可用的。
         status = ReachableViaWWAN;
@@ -119,6 +87,40 @@ NetworkStatus NetworkStatusForFlags(SCNetworkReachabilityFlags flags) {
 #endif
     return status;
 }
+#if TARGET_OS_IPHONE
+NetworkStatus NetworkStatusFromRadioAccess(NSString *radioAccessTechnology){
+    if (![radioAccessTechnology isKindOfClass:NSString.class] || radioAccessTechnology.length == 0) {
+        return NotReachable;
+    }
+    static NSArray *WWAN_2G = nil;
+    static NSArray *WWAN_3G = nil;
+    static NSArray *WWAN_4G = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        WWAN_2G = @[CTRadioAccessTechnologyGPRS,
+                    CTRadioAccessTechnologyEdge];
+        WWAN_3G = @[CTRadioAccessTechnologyWCDMA,
+                    CTRadioAccessTechnologyHSDPA,
+                    CTRadioAccessTechnologyHSUPA,
+                    CTRadioAccessTechnologyCDMA1x,
+                    CTRadioAccessTechnologyCDMAEVDORev0,
+                    CTRadioAccessTechnologyCDMAEVDORevA,
+                    CTRadioAccessTechnologyCDMAEVDORevB];
+        WWAN_4G = @[CTRadioAccessTechnologyeHRPD,
+                    CTRadioAccessTechnologyLTE];
+    });
+    if ([WWAN_4G containsObject:radioAccessTechnology]) {
+        return ReachableVia4G;
+    }else if ([WWAN_3G containsObject:radioAccessTechnology]){
+        return ReachableVia3G;
+    }else if ([WWAN_2G containsObject:radioAccessTechnology]){
+        return ReachableVia2G;
+    }else{
+        //Maybe 5G
+        return ReachableViaWWAN;
+    }
+}
+#endif
 /*
  * 判断当前网络状态下,是否有HTTP/HTTPS代理
  */

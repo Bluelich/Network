@@ -70,6 +70,26 @@
         self.WiFiInfo = [[WiFi alloc] initWithSSID:ssid BSSID:bssid SSIDData:data];
     }
 }
+- (void)updateNetworkStatus
+{
+    SCNetworkReachabilityFlags flags = 0;
+    /*
+     SCNetworkReachabilityGetFlags是同步的,通过DNS解析来判定网络状况
+     在DNS服务器无法到达或慢速网络上,可能耗时30s以上
+     如果在主线程调用这个函数,20s无响应,则会被watchdog杀死
+     SCNetworkReachability API 目前不提供检测设备级p2p网络支持的方法,包括Multipeer Connectivity、GameKit、Game Center 和 p2p NSNetService。
+     */
+    if (!SCNetworkReachabilityGetFlags(self.reachabilityRef, &flags)) {
+        return;
+    }
+    NetworkStatus status = NetworkStatusForFlags(flags);
+#if TARGET_OS_IPHONE
+    if (status == ReachableViaWWAN && self.telephonyNetworkInfo && UIDevice.currentDevice.systemVersion.floatValue >= 7.0f) {
+        status = NetworkStatusFromRadioAccess(self.telephonyNetworkInfo.currentRadioAccessTechnology);
+    }
+#endif
+    self.status = status;
+}
 - (void)updateCellularProvider
 {
     CTCarrier *carrier = self.telephonyNetworkInfo.subscriberCellularProvider;
@@ -96,27 +116,6 @@
         }
     }
 }
-- (void)updateNetworkStatus
-{
-    SCNetworkReachabilityFlags flags = 0;
-    /*
-     SCNetworkReachabilityGetFlags是同步的,通过DNS解析来判定网络状况
-     在DNS服务器无法到达或慢速网络上,可能耗时30s以上
-     如果在主线程调用这个函数,20s无响应,则会被watchdog杀死
-     
-     SCNetworkReachability API 目前不提供检测设备级p2p网络支持的方法, 包括 Multipeer 连接、GameKit、游戏中心或对等 NSNetService。
-     */
-    if (!SCNetworkReachabilityGetFlags(self.reachabilityRef, &flags)) {
-        return;
-    }
-    NetworkStatus status = NetworkStatusForFlags(flags);
-#if    TARGET_OS_IPHONE
-    if (status == ReachableViaWWAN && self.telephonyNetworkInfo && UIDevice.currentDevice.systemVersion.floatValue >= 7.0f) {
-        status = NetworkStatusFromRadioAccess(self.telephonyNetworkInfo.currentRadioAccessTechnology);
-    }
-#endif
-    self.status = status;
-}
 static const void *NetworkReachabilityRetainContextCallback(const void *info) {
     return Block_copy(info);
 }
@@ -128,14 +127,19 @@ static CFStringRef NetworkReachabilityCopyDescriptionCallback(const void *info){
 }
 static void NetWorkStatusManagerReachabilityCallback(SCNetworkReachabilityRef __unused target, SCNetworkReachabilityFlags flags, void *info){
     [NetWorkStatusManager.shared update];
+    void(^block)(NetworkStatus status) = (__bridge void(^)(NetworkStatus status))info;
+    !block ?: block(NetWorkStatusManager.shared.status);
 }
 - (BOOL)notifyNetworkStatus
 {
     if (!self.reachabilityRef) {
         return NO;
     }
-    void(^block)(void) = ^{
-        
+    __weak typeof(self) weakSelf = self;
+    void(^block)(NetworkStatus status) = ^(NetworkStatus status){
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        strongSelf.status = status;
+        NSLog(@"");
     };
     CFIndex version = 0;
     void *info = (__bridge void *)block;
@@ -149,13 +153,6 @@ static void NetWorkStatusManagerReachabilityCallback(SCNetworkReachabilityRef __
     }
     return NO;
 }
-- (void)stopNotify
-{
-    self.telephonyNetworkInfo.subscriberCellularProviderDidUpdateNotifier = nil;
-    if (self.reachabilityRef) {
-        SCNetworkReachabilityUnscheduleFromRunLoop(self.reachabilityRef, CFRunLoopGetMain(), kCFRunLoopCommonModes);
-    }
-}
 - (void)notifySimCard
 {
     if (self.telephonyNetworkInfo) {
@@ -164,6 +161,15 @@ static void NetWorkStatusManagerReachabilityCallback(SCNetworkReachabilityRef __
             __strong typeof(weakSelf) strongSelf = weakSelf;
             [strongSelf updateCellularProvider];
         };
+    }
+}
+- (void)stopNotify
+{
+#if TARGET_OS_IPHONE
+    self.telephonyNetworkInfo.subscriberCellularProviderDidUpdateNotifier = nil;
+#endif
+    if (self.reachabilityRef) {
+        SCNetworkReachabilityUnscheduleFromRunLoop(self.reachabilityRef, CFRunLoopGetMain(), kCFRunLoopCommonModes);
     }
 }
 @end

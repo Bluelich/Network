@@ -11,7 +11,7 @@
 #import <SystemConfiguration/CaptiveNetwork.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #import <CoreTelephony/CTCarrier.h>
-#if    TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
     #import <UIKit/UIKit.h>
 #endif
 
@@ -40,7 +40,7 @@ typedef NS_ENUM(NSInteger, NetworkStatus) {
     ReachableUnknow = -1,
     NotReachable    = 0,
     ReachableViaWiFi,
-#if    TARGET_OS_IPHONE
+#if TARGET_OS_IPHONE
     ReachableViaWWAN,
     ReachableVia2G,
     ReachableVia3G,
@@ -48,14 +48,13 @@ typedef NS_ENUM(NSInteger, NetworkStatus) {
 #endif
 };
 
-#if    TARGET_OS_IPHONE
-NetworkStatus NetworkStatusFromRadioAccess(NSString *radioAccessTechnology);
-#endif
-
 FOUNDATION_EXPORT void __releaseCFObject__(CFTypeRef cf);
 FOUNDATION_EXPORT BOOL ConnectedToInternet(void);
 FOUNDATION_EXPORT BOOL NetworkHasAgentProxy(void);
 FOUNDATION_EXPORT NetworkStatus NetworkStatusForFlags(SCNetworkReachabilityFlags flags);
+#if TARGET_OS_IPHONE
+NetworkStatus NetworkStatusFromRadioAccess(NSString *radioAccessTechnology);
+#endif
 
 
 

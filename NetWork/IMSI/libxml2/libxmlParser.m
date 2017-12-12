@@ -343,8 +343,33 @@ int iconv_close (iconv_t cd);
         return NO;
     }
     iconv_close(cd);
-    return 0;
+    return YES;
 }
+//unicode码转为gb2312码
+//成功则返回一个动态分配的char*变量，需要在使用完毕后手动free，失败返回NULL
+- (char *)u2g:(char *)inbuf
+{
+    unsigned long nOutLen = 2 * strlen(inbuf) - 1;
+    char* szOut = (char*)malloc(nOutLen);
+    if (![self convertString:inbuf charset:"utf-8" length:strlen(inbuf) to_charset:"gb2312" out_buffer:szOut out_length:nOutLen]) {
+        free(szOut);
+        return NULL;
+    }
+    return szOut;
+}
+//gb2312码转为unicode码
+//成功则返回一个动态分配的char*变量，需要在使用完毕后手动free，失败返回NULL
+- (char*)g2u:(char *)inbuf
+{
+    unsigned long nOutLen = 2 * strlen(inbuf) - 1;
+    char* szOut = (char*)malloc(nOutLen);
+    if (![self convertString:inbuf charset:"gb2312" length:strlen(inbuf) to_charset:"utf-8" out_buffer:szOut out_length:nOutLen]) {
+        free(szOut);
+        return NULL;
+    }
+    return szOut;
+}
+
 - (void)delete:(xmlNode *)curNode
 {
     /*
