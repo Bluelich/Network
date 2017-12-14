@@ -67,7 +67,7 @@
     for (CFIndex i = 0; i < count; i++) {
         CFStringRef name = CFArrayGetValueAtIndex(interfaces, i);
         CFDictionaryRef info = CNCopyCurrentNetworkInfo(name);
-        if (CFDictionaryGetCount(info) == 0) {
+        if (!info || CFDictionaryGetCount(info) == 0) {
             continue;
         }
         NSString *ssid  = (__bridge NSString *)CFDictionaryGetValue(info, kCNNetworkInfoKeySSID);
@@ -148,7 +148,6 @@ static void NetWorkStatusManagerReachabilityCallback(SCNetworkReachabilityRef __
     void(^block)(NetworkStatus status) = ^(NetworkStatus status){
         __strong typeof(weakSelf) strongSelf = weakSelf;
         strongSelf.status = status;
-        NSLog(@"");
     };
     CFIndex version = 0;
     void *info = (__bridge void *)block;
@@ -161,6 +160,14 @@ static void NetWorkStatusManagerReachabilityCallback(SCNetworkReachabilityRef __
         return YES;
     }
     return NO;
+}
+- (void)setStatus:(NetworkStatus)status
+{
+    if (_status == status) {
+        return;
+    }
+    _status = status;
+    !_networkStatusChangedBlock ?: _networkStatusChangedBlock(_status);
 }
 - (void)notifySimCard
 {

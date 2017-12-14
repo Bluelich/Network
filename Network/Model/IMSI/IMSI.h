@@ -9,14 +9,22 @@
 
 /**
  IMSI: International Mobile Subscriber Identity 国际移动用户识别码
+ 
  PLMN: Public Land Mobile Network 公共陆地移动网络
+ 
  HNI : Home Network Identity PLMN的不同叫法
+ 
  MCC : Mobile Country Code  移动国家代码 由国际电联(ITU)统一分配，唯一识别移动用户所属的国家，MCC共3位,中国地区的MCC为460
+ 
  MNC : Mobile Network Code  移动网络代码 长度由MCC的值决定,2位(欧洲标准)或3位(北美标准)
+ 
  MSIN: Mobile Subscription Identification Number 移动订户识别代码,由运营商自行分配 (9~10位,取决于MNC的长度)
+ 
  IMSI = MCC + MNC + MSIN
- ---------
- PLMN
+ 
+        ---------
+ 
+          PLMN
  */
 NS_ASSUME_NONNULL_BEGIN
 @interface IMSI : NSObject

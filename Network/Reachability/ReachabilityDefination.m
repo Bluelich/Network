@@ -56,6 +56,26 @@ BOOL ConnectedToInternet(){
     BOOL needsConnection = flags & kSCNetworkFlagsConnectionRequired;
     return isReachable && !needsConnection;
 }
+NSString *NSStringFromNetworkStatus(NetworkStatus status){
+    switch (status) {
+        case ReachableUnknow:
+            return @"ReachableUnknow";
+        case NotReachable:
+            return @"NotReachable";
+        case ReachableViaWiFi:
+            return @"ReachableViaWiFi";
+#if TARGET_OS_IPHONE
+        case ReachableViaWWAN:
+            return @"ReachableViaWWAN";
+        case ReachableVia2G:
+            return @"ReachableVia2G";
+        case ReachableVia3G:
+            return @"ReachableVia3G";
+        case ReachableVia4G:
+            return @"ReachableVia4G";
+#endif
+    }
+}
 NetworkStatus NetworkStatusForFlags(SCNetworkReachabilityFlags flags) {
     /*
      PPP:Point-To-Point,点对点通信协议

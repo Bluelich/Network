@@ -9,9 +9,9 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <SystemConfiguration/CaptiveNetwork.h>
 #if TARGET_OS_IPHONE
-#import <CoreTelephony/CTTelephonyNetworkInfo.h>
-#import <CoreTelephony/CTCarrier.h>
-#import <UIKit/UIKit.h>
+    #import <CoreTelephony/CTTelephonyNetworkInfo.h>
+    #import <CoreTelephony/CTCarrier.h>
+    #import <UIKit/UIKit.h>
 #endif
 
 #import <netinet/in.h>
@@ -51,6 +51,7 @@ FOUNDATION_EXPORT void __releaseCFObject__(CFTypeRef cf);
 FOUNDATION_EXPORT BOOL ConnectedToInternet(void);
 FOUNDATION_EXPORT BOOL NetworkHasAgentProxy(void);
 FOUNDATION_EXPORT NetworkStatus NetworkStatusForFlags(SCNetworkReachabilityFlags flags);
+FOUNDATION_EXPORT NSString *NSStringFromNetworkStatus(NetworkStatus status);
 #if TARGET_OS_IPHONE
     NetworkStatus NetworkStatusFromRadioAccess(NSString *radioAccessTechnology);
 #endif

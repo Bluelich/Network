@@ -37,7 +37,7 @@ static NSString * const kIMSI_PLMN_RESOURCE_URL = @"http://www.mcc-mnc.com/";
 }
 + (NSArray<IMSI *> *)allPMLNs
 {
-    return IMSIManager.shared.data;
+    return IMSIManager.shared.data.copy;
 }
 + (BOOL)update:(NSError **)err
 {

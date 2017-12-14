@@ -10,10 +10,12 @@
 
 @interface IMSIManager : NSObject
 
-@property (class,nonatomic,strong,readonly) NSArray<IMSI *> *allPMLNs;
+- (instancetype)init NS_UNAVAILABLE;
 
 + (BOOL)update:(NSError **)error;
 
 + (IMSI *)infoForMCC:(NSString *)MCC MNC:(NSString *)MNC;
+
+@property (class,nonatomic,strong,readonly) NSArray<IMSI *> *allPMLNs;
 
 @end

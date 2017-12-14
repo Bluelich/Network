@@ -147,32 +147,7 @@ NSString *NSStringFrom_addr_sin_family(addr_sin_family family){
             return @"AF_MAX";
     }
 }
-NSArray<NSString *> *getInterfaceNames(){
-    struct if_nameindex *if_ni = if_nameindex();
-    if (if_ni == NULL) {
-        perror("if_nameindex");
-        return nil;
-    }
-    NSMutableArray<NSDictionary *> *array = [NSMutableArray array];
-    NSMutableArray<NSString *> *names = [NSMutableArray array];
-    struct if_nameindex *i = if_ni;
-    do {
-        unsigned int if_index = i->if_index;
-        char *name = i->if_name;
-        if (if_index == 0 && name == NULL) {
-            break;
-        }
-        [array addObject:@{@"index":@(if_index),
-                           @"name" :[NSString stringWithUTF8String:name]}];
-        [names addObject:@""];
-        i++;
-    } while (YES);
-    
-    [array enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull dic, NSUInteger idx, BOOL * _Nonnull stop) {
-        [names replaceObjectAtIndex:[dic[@"index"] unsignedIntegerValue] - 1 withObject:dic[@"name"] ];
-    }];
-    return names.copy;
-}
+NSArray<NSString *> *getInterfaceNames(void);
 @interface Addr_Interface ()
 
 @property (nonatomic,assign) if_flags         flags;
@@ -276,7 +251,32 @@ NSArray<NSString *> *getInterfaceNames(){
     }
 }
 @end
-
+NSArray<NSString *> *getInterfaceNames(){
+    struct if_nameindex *if_ni = if_nameindex();
+    if (if_ni == NULL) {
+        perror("if_nameindex");
+        return nil;
+    }
+    NSMutableArray<NSDictionary *> *array = [NSMutableArray array];
+    NSMutableArray<NSString *> *names = [NSMutableArray array];
+    struct if_nameindex *i = if_ni;
+    do {
+        unsigned int if_index = i->if_index;
+        char *name = i->if_name;
+        if (if_index == 0 && name == NULL) {
+            break;
+        }
+        [array addObject:@{@"index":@(if_index),
+                           @"name" :[NSString stringWithUTF8String:name]}];
+        [names addObject:@""];
+        i++;
+    } while (YES);
+    
+    [array enumerateObjectsUsingBlock:^(NSDictionary * _Nonnull dic, NSUInteger idx, BOOL * _Nonnull stop) {
+        [names replaceObjectAtIndex:[dic[@"index"] unsignedIntegerValue] - 1 withObject:dic[@"name"] ];
+    }];
+    return names.copy;
+}
 void sockaddr_desc(struct sockaddr *sockaddr,const char *name){
     if (!sockaddr) {
         printf("\n[%s] NULL",name);
@@ -376,7 +376,5 @@ int getaddrinfo(const char * __restrict hostname, const char * __restrict servna
  2.通过使用简化的报头通过网络提供更快的路由
  3.防止网络碎片
  4.避免为邻居地址解析广播
- 
- 
  */
 

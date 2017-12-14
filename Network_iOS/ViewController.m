@@ -6,8 +6,11 @@
 //
 
 #import "ViewController.h"
+#import "Reachability.h"
 
 @interface ViewController ()
+
+@property (weak, nonatomic) IBOutlet UILabel *label;
 
 @end
 
@@ -15,14 +18,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    self.label.text = NSStringFromNetworkStatus(Reachability.shared.status);
+    [Reachability.shared setNetworkStatusChangedBlock:^(NetworkStatus status) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.label.text = NSStringFromNetworkStatus(status);
+        });
+    }];
+    
 }
-
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-
 @end
