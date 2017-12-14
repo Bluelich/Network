@@ -16,26 +16,24 @@
  * Check for white-space characters
  */
 bool is_space(unsigned int val){
-    if (val == ' ') {
+    if (val == ' ' ||
+        val == 0x00a0 ||
+        val == 0x0085 ||
+        val == 0x1680 ||
+        val == 0x180e ||
+        val == 0x2028 ||
+        val == 0x2029 ||
+        val == 0x202f ||
+        val == 0x205f ||
+        val == 0x3000) {
         return true;
     }else if (val <= 0x000d && val >= 0x0009){
         return true;
-    }else if (val >= 0x0080){
-        if (val == 0x00a0 ||
-            val == 0x0085 ||
-            val == 0x1680 ||
-            val == 0x180e ||
-            val == 0x2028 ||
-            val == 0x2029 ||
-            val == 0x202f ||
-            val == 0x205f ||
-            val == 0x3000) {
-            return true;
-        }else if (val >= 0x2000 && val <= 0x200a){
-            return true;
-        }
+    }else if (val >= 0x2000 && val <= 0x200a){
+        return true;
+    }else{
+        return false;
     }
-    return false;
 }
 void sockaddr_getInfo2(struct sockaddr *sockaddr,char **host,char **service){
     if (!sockaddr) {
