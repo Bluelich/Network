@@ -16,6 +16,7 @@ void test2(void);
 const char* getIPV6(const char * mHost);
 void getIP(void);
 void test_other(void);
+bool is_space(unsigned int val);
 
 @interface Task : NSObject
 - (void)testMultipeerConnectivity;
