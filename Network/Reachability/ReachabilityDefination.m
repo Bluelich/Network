@@ -6,6 +6,65 @@
 //
 
 #import "ReachabilityDefination.h"
+//http://blog.csdn.net/u013613341/article/details/50762913
+/*
+ void bzero(void *dest,size_t nbytes);//初始化
+ void bcopy(const void *src,void *dest,size_t nbytes);//把指定长度的字节从src移动到dest处
+ int bcmp(const void *ptr1, const void *ptr2, size_t nbytes);//比较两个字符串，相等返回0，否则为非0
+
+ 
+ //123(主机序) ---> 123(网络字节序)
+ //用于发送时
+ uint16_t htons(uint16_t host16bitvalue);
+ uint32_t htonl(uint32_t host32bitvalue);
+ 
+ //456(网络序) ---> 456(主机序)
+ //用于接收时
+ uint16_t ntohs(uint16_t net16bitvalue);
+ uint32_t ntohl(uint32_t net32bitvalue);
+
+*/
+//以下仅适用于IPv4地址转换函数
+//"address" to net，即点分十进制的ip地址字符串 ---> 网络字节序
+//例如 "192.168.1.106" -->  struct in_addr
+//若strptr(address字符串)有效，则返回１。否则返回０
+int inet_aton(const char *strptr, struct in_addr *addrptr);
+
+//net to "address"
+//返回值是点分式的字符串ip地址
+char *inet_ntoa(struct in_addr inaddr);
+
+//address to net 的另一种形式
+//出错时返回INADDR_NONE 常值（通常是一个32位均为1的值）这意味着255.255.255.255 地址串不能由该函数处理。
+//通过返回值而不是指针返回ip地址的网络字节序
+in_addr_t inet_addr(const char *strptr);
+
+
+//随IPv6出现的2个函数，应尽量使用这两个函数以保证IPv4与IPv6的兼容性。其中p可代表字符串，n代表二进制数值。
+/*
+ IPv4/v6通用转换函数
+ */
+/**
+ * @brief inet_pton      "presentation" to net
+ *
+ * @param strptr   --    const char *, presentation, 例如 "192.168.1.100"
+ * @param addrptr  --    void *, 通过指针返回in_addr或in6_ddr结构体
+ *
+ * @returns              成功则返回1，输入不是有效的表达式则返回0，出错则返回 -1.
+ */
+int inet_pton(int family, const char *strptr, void *addrptr);
+
+/**
+ * @brief inet_ntop
+ *
+ * @param family         协议族，AF_INET或AF_INET6
+ * @param addrptr  --    const void *, 要转换的in_addr或in6_addr
+ * @param strptr   --    char *,存放转换的结果
+ * @param len      --    size_t,目标储存单元(strptr)的大小
+ *                       通常为 INET_ADDRSTRLEN(16) 或 INET6_ADDRSTRLEN(46)
+ * @returns              转换结果的指针，即 strptr 分配给strptr的len不足:errno->ENOSPC。成功则返回指向结构的指针，出错则为NULL。
+ */
+const char* inet_ntop(int family, const void *addrptr, char *strptr, socklen_t len);
 
 struct sockaddr_desc {
     __uint8_t    sa_len;     //总长度

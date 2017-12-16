@@ -246,7 +246,7 @@ NSArray<NSString *> *getInterfaceNames(void);
     }
     if (len) {
         char addr_buf[len];
-        inet_ntop(self.ifa_addr->sa_family, addr, addr_buf, len);
+        const char *ptr = inet_ntop(self.ifa_addr->sa_family, addr, addr_buf, len);
         self.addr = [NSString stringWithUTF8String:addr_buf];
     }
 }
