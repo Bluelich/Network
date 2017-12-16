@@ -34,9 +34,9 @@
 #import <stdlib.h>
 #import <unistd.h>
 
+#import "Addr_Interface.h"
 
 typedef NS_ENUM(NSInteger, NetworkStatus) {
-    ReachableUnknow = -1,
     NotReachable    = 0,
     ReachableViaWiFi,
 #if TARGET_OS_IPHONE
@@ -48,7 +48,7 @@ typedef NS_ENUM(NSInteger, NetworkStatus) {
 };
 
 FOUNDATION_EXPORT void __releaseCFObject__(CFTypeRef cf);
-FOUNDATION_EXPORT BOOL ConnectedToInternet(void);
+FOUNDATION_EXPORT BOOL ConnectedToInternet(Address_format format);
 FOUNDATION_EXPORT BOOL NetworkHasAgentProxy(void);
 FOUNDATION_EXPORT NetworkStatus NetworkStatusForFlags(SCNetworkReachabilityFlags flags);
 FOUNDATION_EXPORT NSString *NSStringFromNetworkStatus(NetworkStatus status);

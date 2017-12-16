@@ -172,8 +172,8 @@ NSArray<NSString *> *getInterfaceNames(void);
 - (BOOL)isValid
 {
     BOOL valid = (self.ifa_flags & IFF_UP       ) &&
-    (self.ifa_flags & IFF_RUNNING  ) &&
-    (self.ifa_flags & IFF_MULTICAST);
+                 (self.ifa_flags & IFF_RUNNING  ) &&
+                 (self.ifa_flags & IFF_MULTICAST);
     return valid;
 }
 + (NSArray<NSString *> *)allInterfaceNames
@@ -224,7 +224,7 @@ NSArray<NSString *> *getInterfaceNames(void);
     socklen_t len = 0;
     const void *addr;
     switch (self.ifa_addr->sa_family) {
-        case AF_INET:
+        case addr_sin_family_AF_INET:
         {
             self.address_format = Address_format_ipv4;
             len = INET_ADDRSTRLEN;
@@ -232,7 +232,7 @@ NSArray<NSString *> *getInterfaceNames(void);
             addr =  &addr_ipv4->sin_addr;
         }
             break;
-        case AF_INET6:
+        case addr_sin_family_AF_INET6:
         {
             self.address_format = Address_format_ipv6;
             len = INET6_ADDRSTRLEN;

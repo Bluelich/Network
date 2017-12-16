@@ -7,59 +7,98 @@
 
 #import "ReachabilityDefination.h"
 
+struct sockaddr_desc {
+    __uint8_t    sa_len;     //总长度
+    sa_family_t  sa_family;  //addr_sin_family
+    //协议地址，由sa_family决定。
+    char         sa_data[14];// sin_port(2) + sin_addr(4) + sin_zero(8)
+};
+struct sockaddr_in_desc {
+    __uint8_t      sin_len;   //8-bit -> 1 Byte
+    sa_family_t    sin_family;//8-bit -> 1 Byte
+    in_port_t      sin_port;  //端口号（使用网络字节顺序）    16-bit -> 2 Byte
+    struct in_addr sin_addr;  //ip地址 (按照网络字节顺序存储) 32-bit -> 4 Byte
+    char           sin_zero[8];//空字节,用来填充到与struct sockaddr同样的长度，以支持互相转换
+};
+/*
+ ipv6 报头
+ 
+ 0~31    版本号(6) + Qos(流量等级) + 流标签(标识同一个流里面的报文)
+ 32~63   载荷长度 +下一报头　＋　跳数限制
+ 64~191  源地址
+ 192~320 目标地址
+ 
+ 流标签
+ RFC2460对IPv6流标签的特征进行了说明：
+ (1) 一个流由源地址和流标签的组合唯一确定。 一对源和目的之间有可能有多个激活的流，也可能有不属于任何一个流的流量
+ (2) 所携带的流标签值为 0 的数据包不属于任何一个流。
+ (3)需要发送流的源节点赋给其流标签特定的值。流标签是一个随机数，目的是使所产生的流标签都能作为哈希关键字。
+ 对那些不支持流标签处理的设备节点和应用把流标签值赋值为 0，或者不对该字段处理。
+ (4)一个流那些的所有数据包产生时必须具有相同的属性，包括源地址、目的地址、非 0 的流标签。
+ (5)如果其中任何一个数据包包含逐跳选项报头，那么流的每一个包都必须包含相同的逐跳选项报头(逐跳选项报头的下一个报头字段除外)。
+ (6)流路径中流处理状态的最大生命周期要在状态建立机制中说明。
+ (7)当一个结点重启时，例如死机后的恢复运行，必须小心使用流标签，因为该流标签有可能在前面仍处于最大生存周期内的的流中使用。
+ (8)不要求所有或至少大多数数据包属于某一个流，即都携带有非 0 的流标签
+ 
+ sin6_scope_id:网口标识
+ e.g. fe80::xxxx:xxxx:xxxx:xxxx%4 -> (<address>%<zone index>)
+ */
+//28 byte != 16 Byte(大小不一致问题应该是系统内部有处理)
+struct sockaddr_in6_desc {
+    __uint8_t    sin6_len;       //IPv6 为固定的24 字节长度   8-bit -> 1 Byte
+    sa_family_t    sin6_family;  //地址簇类型，为AF_INET6     8-bit -> 1 Byte
+    in_port_t    sin6_port;      //16 位端口号，网络字节序    16-bit -> 2 Byte
+    __uint32_t    sin6_flowinfo; //32 位流标签              32-bit -> 4 Byte
+    struct in6_addr    sin6_addr;//128 位IP 地址           128-bit -> 16 Byte
+    __uint32_t    sin6_scope_id; //地址所在的接口索引         32-bit -> 4 Byte
+};
+//新的结构体 struct sockaddr_storage对IPv6有更好的支持
+//而不需要让开发者传递一个28byte的结构体指针给一个16byte的结构体指针(28->16因为是指针,只要内部处理了,就不会有问题)
+struct sockaddr_storage_desc {
+    __uint8_t    ss_len;        /* address length */
+    sa_family_t    ss_family;    /* [XSI] address family */
+    char            __ss_pad1[_SS_PAD1SIZE];
+    __int64_t    __ss_align;    /* force structure storage alignment */
+    char            __ss_pad2[_SS_PAD2SIZE];
+};
+
 void __releaseCFObject__(CFTypeRef cf){ if (!cf) return; CFRelease(cf);}
-BOOL ConnectedToInternet(){
-    /*
-     TARGET_OS_IPHONE
-     TARGET_OS_MAC
-     TARGET_OS_IPHONE
-     TARGET_IPHONE_SIMULATOR
-     TARGET_OS_EMBEDDED
-     defined(__MAC_OS_X_VERSION_MIN_REQUIRED)
-     defined(__IPHONE_OS_MIN_VERSION_REQUIRED)
-     */
-    
+BOOL ConnectedToInternet(Address_format prefer_format){
+    BOOL ipv6 = prefer_format & Address_format_ipv6;
+    if (!ipv6) {
+        if (@available(macOS 10.11,iOS 9.0, *)) {
+            ipv6 = YES;
+        }
+    }
     //创建0.0.0.0的地址,查询本机网络连接状态
-#if (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED >= 90000) ||\
-(defined(__MAC_OS_X_VERSION_MIN_REQUIRED)  && __MAC_OS_X_VERSION_MIN_REQUIRED  >= 101100)
-    struct sockaddr_in6 address;
-    bzero(&address, sizeof(address));
-    address.sin6_len = sizeof(address);
-    address.sin6_family = AF_INET6;
-    //    address.sin6_port = 80;//Transport layer port
-    //    address.sin6_flowinfo = 123;//IP6 flow information
-    //    struct in6_addr addr6;
-    //    __uint8_t a[16] = {255,255,255,0,0,255,16,1,255,17,15,255,10,10,1,10};
-    //    addr6.__u6_addr.__u6_addr8;
-    //    address.sin6_addr = addr6;// IP6 address
-    //    address.sin6_scope_id;// scope zone index
-#else
-    struct sockaddr_in address;
-    bzero(&address, sizeof(address));//置0同memset
-    address.sin_len = sizeof(address);
-    address.sin_family = AF_INET;
-    //    address.sin_port = 80;
-    //    address.sin_addr.s_addr = inet_addr("192.168.1.228");
-    //    address.sin_addr.s_addr = htonl(IN_LINKLOCALNETNUM);
-    //    address.sin_zero;
-#endif
+    struct sockaddr *address;
+    if (ipv6) {
+        struct sockaddr_in6_desc address_6;
+        bzero(&address_6, sizeof(struct sockaddr_in6_desc));
+        address_6.sin6_len = sizeof(struct sockaddr_in6_desc);
+        address_6.sin6_family = AF_INET6;
+        address = (struct sockaddr *)&address_6;
+    }else{
+        struct sockaddr_in_desc address_4;
+        bzero(&address_4, sizeof(struct sockaddr_in_desc));//置0同memset
+        address_4.sin_len = sizeof(struct sockaddr_in_desc);
+        address_4.sin_family = AF_INET;
+        address = (struct sockaddr *)&address_4;
+    }
     
-    
-    SCNetworkReachabilityRef defaultRouteReachability = SCNetworkReachabilityCreateWithAddress(NULL, (struct sockaddr *)&address);
+    SCNetworkReachabilityRef defaultRouteReachability = SCNetworkReachabilityCreateWithAddress(NULL, address);
     SCNetworkReachabilityFlags flags;
     BOOL didRetrieveFlags = SCNetworkReachabilityGetFlags(defaultRouteReachability, &flags);
     __releaseCFObject__(defaultRouteReachability);
     if (!didRetrieveFlags) {
         return NO;
     }
-    BOOL isReachable = flags & kSCNetworkFlagsReachable;
+    BOOL isReachable     = flags & kSCNetworkFlagsReachable;
     BOOL needsConnection = flags & kSCNetworkFlagsConnectionRequired;
     return isReachable && !needsConnection;
 }
 NSString *NSStringFromNetworkStatus(NetworkStatus status){
     switch (status) {
-        case ReachableUnknow:
-            return @"ReachableUnknow";
         case NotReachable:
             return @"NotReachable";
         case ReachableViaWiFi:
@@ -227,4 +266,3 @@ BOOL NetworkHasAgentProxy(){
     __releaseCFObject__(proxies);
     return result;
 }
-
