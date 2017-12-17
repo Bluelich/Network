@@ -155,29 +155,5 @@ FOUNDATION_EXPORT NSString *NSStringFrom_addr_sin_family(addr_sin_family family)
 
 @end
 
-/**
- getnameinfo : getaddrinfo的逆操作 Thread safety
- 
- @param addr    sockaddr(ipv4 or ipv6)
- @param addrlen size of addr
- @param host    char *
- @param hostlen size of host
- @param serv    char *
- @param servlen size of serv
- @param flags
- NI_NAMEREQD    如果hostname无法确定,会返回错误
- NI_DGRAM       服务是基于datagram(UDP)而不是基于stream(TCP)。对于UDP和TCP具有不同服务的几个端口(512–514),这是必需的。
- NI_NOFQDN      只返回本地host的的主机名部分。
- NI_NUMERICHOST 返回主机名的数字形式。(无法确定节点名称的情况下也会返回)
- NI_NUMERICSERV 返回服务地址的数字形式。(无法确定服务名称的情况下也会返回)
- NI_IDN         查找过程中找到的名称将从IDN格式转换为区域设置编码(如有必要)。仅ASCII名称不受影响,从而使此标志在现有程序和环境中可用。
- NI_IDN_ALLOW_UNASSIGNED     对应IDNA处理过程中的 IDNA_ALLOW_UNASSIGNED
- NI_IDN_USE_STD3_ASCII_RULES 对应IDNA处理过程中的 IDNA_USE_STD3_ASCII_RULES
- @return success: 0  failed: 1-15 (netdb.h)
- */
-int getnameinfo(const struct sockaddr * __restrict addr, socklen_t addrlen,
-                char * __restrict host, socklen_t hostlen,
-                char * __restrict serv, socklen_t servlen,
-                int              flags);
 FOUNDATION_EXPORT void sockaddr_getInfo(struct sockaddr *sockaddr,char host[NI_MAXHOST],char service[NI_MAXSERV]);
 FOUNDATION_EXPORT void sockaddr_desc(struct sockaddr *sockaddr,const char *name);

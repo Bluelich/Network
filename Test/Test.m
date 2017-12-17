@@ -183,7 +183,31 @@ void test_other(){
 void testMultipeerConnectivity(){
     
 }
-
+void test_sockaddr_storage(){
+    struct addrinfo *hints, *res;
+    getaddrinfo("www.kame.net", "http", hints, &res);
+    __uint16_t udp_local_port = 0x1234;
+    int usd = socket(AF_INET, SOCK_DGRAM, 0);
+    struct sockaddr_storage local_addr;
+    memset(&local_addr, 0, sizeof(struct sockaddr_storage));
+    if(res->ai_family == AF_INET6) {
+        struct sockaddr_in6 *local_addr6 = (struct sockaddr_in6 *)&local_addr;
+        local_addr6->sin6_family = AF_INET6;
+        local_addr6->sin6_port = htons(udp_local_port);
+        local_addr6->sin6_addr = in6addr_any;
+    }else if(res->ai_family == AF_INET){
+        struct sockaddr_in *local_addr4 = (struct sockaddr_in *)&local_addr;
+        local_addr4->sin_family = AF_INET;
+        local_addr4->sin_port = htons(udp_local_port);
+        local_addr4->sin_addr.s_addr = htonl(INADDR_ANY);
+    }
+    if(bind(usd,(struct sockaddr *)&local_addr,sizeof(local_addr)) == -1){
+        perror("bind");
+        fprintf(stderr,"could not bind to local udp port %d\n", udp_local_port);
+        exit(1);
+    }
+    freeaddrinfo(res);
+}
 
 /**
  * Check for white-space characters
@@ -233,7 +257,61 @@ bool sockaddr_getInfo2(struct sockaddr *sockaddr,char **host,char **service){
     return res == 0;
 }
 
-
+void socket_tcp_server_test(){
+    int a = socket(1, 1, 1);
+    setsockopt(1, 1, 1, "", 1);
+    struct sockaddr addr;
+    bind(1, &addr, 1);
+    listen(1, 1);
+    socklen_t x;
+    accept(1, &addr, &x);
+    /*
+     MSG_DONTROUTE:主机在本地网络上面,不查找表,一般用网络诊断和路由程序
+     MSG_OOB:接受或者发送带外数据
+     MSG_PEEK:查看数据,并不从系统缓冲区移走数据
+     MSG_WAITALL:等待所有数据
+     */
+    send(1, "aaa", 1, MSG_PEEK);
+    recv(1, "", 1, MSG_WAITALL);
+    read(1, "", 1);
+    write(1, "", 1);
+    close(a);
+}
+void socket_tcp_client_test(){
+    socket(1, 1, 1);
+    setsockopt(1, 1, 1, "", 1);
+    struct sockaddr addr;
+    bind(1, &addr, 1);
+    connect(1, &addr, 1);
+    send(1, "aaa", 1, 1);
+    recv(1, "", 1, 1);
+    read(1, "", 1);
+    write(1, "", 1);
+    close(1);
+}
+void socket_udp_server_test(){
+    //不需要listen
+    int a = socket(1, 1, 1);
+    setsockopt(1, 1, 1, "", 1);
+    struct sockaddr addr;
+    bind(1, &addr, 1);
+    socklen_t len;
+    recvfrom(1, "", 1, 1, &addr, &len);
+    sendto(1, "", 1, 1, &addr, len);
+    close(a);
+}
+void socket_udp_client_test(){
+    socket(1, 1, 1);
+    setsockopt(1, 1, 1, "", 1);
+    struct sockaddr addr;
+    bind(1, &addr, 1);
+    connect(1, &addr, 1);
+    //如果调用了connect就直接可以用send和recv了,这时最后两个参数会自动用connect建立时的地址信息填充
+    sendto(1, "", 1, 1, &addr, 1);
+    socklen_t len;
+    recvfrom(1, "", 1, 1, &addr, &len);
+    close(1);
+}
 
 @interface Task ()
 <

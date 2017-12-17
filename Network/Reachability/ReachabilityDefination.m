@@ -6,120 +6,6 @@
 //
 
 #import "ReachabilityDefination.h"
-//http://blog.csdn.net/u013613341/article/details/50762913
-/*
- void bzero(void *dest,size_t nbytes);//初始化
- void bcopy(const void *src,void *dest,size_t nbytes);//把指定长度的字节从src移动到dest处
- int bcmp(const void *ptr1, const void *ptr2, size_t nbytes);//比较两个字符串，相等返回0，否则为非0
-
- 
- //123(主机序) ---> 123(网络字节序)
- //用于发送时
- uint16_t htons(uint16_t host16bitvalue);
- uint32_t htonl(uint32_t host32bitvalue);
- 
- //456(网络序) ---> 456(主机序)
- //用于接收时
- uint16_t ntohs(uint16_t net16bitvalue);
- uint32_t ntohl(uint32_t net32bitvalue);
-
-*/
-//以下仅适用于IPv4地址转换函数
-//"address" to net，即点分十进制的ip地址字符串 ---> 网络字节序
-//例如 "192.168.1.106" -->  struct in_addr
-//若strptr(address字符串)有效，则返回１。否则返回０
-int inet_aton(const char *strptr, struct in_addr *addrptr);
-
-//net to "address"
-//返回值是点分式的字符串ip地址
-char *inet_ntoa(struct in_addr inaddr);
-
-//address to net 的另一种形式
-//出错时返回INADDR_NONE 常值（通常是一个32位均为1的值）这意味着255.255.255.255 地址串不能由该函数处理。
-//通过返回值而不是指针返回ip地址的网络字节序
-in_addr_t inet_addr(const char *strptr);
-
-
-//随IPv6出现的2个函数，应尽量使用这两个函数以保证IPv4与IPv6的兼容性。其中p可代表字符串，n代表二进制数值。
-/*
- IPv4/v6通用转换函数
- */
-/**
- * @brief inet_pton      "presentation" to net
- *
- * @param strptr   --    const char *, presentation, 例如 "192.168.1.100"
- * @param addrptr  --    void *, 通过指针返回in_addr或in6_ddr结构体
- *
- * @returns              成功则返回1，输入不是有效的表达式则返回0，出错则返回 -1.
- */
-int inet_pton(int family, const char *strptr, void *addrptr);
-
-/**
- * @brief inet_ntop
- *
- * @param family         协议族，AF_INET或AF_INET6
- * @param addrptr  --    const void *, 要转换的in_addr或in6_addr
- * @param strptr   --    char *,存放转换的结果
- * @param len      --    size_t,目标储存单元(strptr)的大小
- *                       通常为 INET_ADDRSTRLEN(16) 或 INET6_ADDRSTRLEN(46)
- * @returns              转换结果的指针，即 strptr 分配给strptr的len不足:errno->ENOSPC。成功则返回指向结构的指针，出错则为NULL。
- */
-const char* inet_ntop(int family, const void *addrptr, char *strptr, socklen_t len);
-
-struct sockaddr_desc {
-    __uint8_t    sa_len;     //总长度
-    sa_family_t  sa_family;  //addr_sin_family
-    //协议地址，由sa_family决定。
-    char         sa_data[14];// sin_port(2) + sin_addr(4) + sin_zero(8)
-};
-struct sockaddr_in_desc {
-    __uint8_t      sin_len;   //8-bit -> 1 Byte
-    sa_family_t    sin_family;//8-bit -> 1 Byte
-    in_port_t      sin_port;  //端口号（使用网络字节顺序）    16-bit -> 2 Byte
-    struct in_addr sin_addr;  //ip地址 (按照网络字节顺序存储) 32-bit -> 4 Byte
-    char           sin_zero[8];//空字节,用来填充到与struct sockaddr同样的长度，以支持互相转换
-};
-/*
- ipv6 报头
- 
- 0~31    版本号(6) + Qos(流量等级) + 流标签(标识同一个流里面的报文)
- 32~63   载荷长度 +下一报头　＋　跳数限制
- 64~191  源地址
- 192~320 目标地址
- 
- 流标签
- RFC2460对IPv6流标签的特征进行了说明：
- (1) 一个流由源地址和流标签的组合唯一确定。 一对源和目的之间有可能有多个激活的流，也可能有不属于任何一个流的流量
- (2) 所携带的流标签值为 0 的数据包不属于任何一个流。
- (3)需要发送流的源节点赋给其流标签特定的值。流标签是一个随机数，目的是使所产生的流标签都能作为哈希关键字。
- 对那些不支持流标签处理的设备节点和应用把流标签值赋值为 0，或者不对该字段处理。
- (4)一个流那些的所有数据包产生时必须具有相同的属性，包括源地址、目的地址、非 0 的流标签。
- (5)如果其中任何一个数据包包含逐跳选项报头，那么流的每一个包都必须包含相同的逐跳选项报头(逐跳选项报头的下一个报头字段除外)。
- (6)流路径中流处理状态的最大生命周期要在状态建立机制中说明。
- (7)当一个结点重启时，例如死机后的恢复运行，必须小心使用流标签，因为该流标签有可能在前面仍处于最大生存周期内的的流中使用。
- (8)不要求所有或至少大多数数据包属于某一个流，即都携带有非 0 的流标签
- 
- sin6_scope_id:网口标识
- e.g. fe80::xxxx:xxxx:xxxx:xxxx%4 -> (<address>%<zone index>)
- */
-//28 byte != 16 Byte(大小不一致问题应该是系统内部有处理)
-struct sockaddr_in6_desc {
-    __uint8_t    sin6_len;       //IPv6 为固定的24 字节长度   8-bit -> 1 Byte
-    sa_family_t    sin6_family;  //地址簇类型，为AF_INET6     8-bit -> 1 Byte
-    in_port_t    sin6_port;      //16 位端口号，网络字节序    16-bit -> 2 Byte
-    __uint32_t    sin6_flowinfo; //32 位流标签              32-bit -> 4 Byte
-    struct in6_addr    sin6_addr;//128 位IP 地址           128-bit -> 16 Byte
-    __uint32_t    sin6_scope_id; //地址所在的接口索引         32-bit -> 4 Byte
-};
-//新的结构体 struct sockaddr_storage对IPv6有更好的支持
-//而不需要让开发者传递一个28byte的结构体指针给一个16byte的结构体指针(28->16因为是指针,只要内部处理了,就不会有问题)
-struct sockaddr_storage_desc {
-    __uint8_t    ss_len;        /* address length */
-    sa_family_t    ss_family;    /* [XSI] address family */
-    char            __ss_pad1[_SS_PAD1SIZE];
-    __int64_t    __ss_align;    /* force structure storage alignment */
-    char            __ss_pad2[_SS_PAD2SIZE];
-};
 
 void __releaseCFObject__(CFTypeRef cf){ if (!cf) return; CFRelease(cf);}
 BOOL ConnectedToInternet(Address_format prefer_format){
@@ -132,15 +18,15 @@ BOOL ConnectedToInternet(Address_format prefer_format){
     //创建0.0.0.0的地址,查询本机网络连接状态
     struct sockaddr *address;
     if (ipv6) {
-        struct sockaddr_in6_desc address_6;
-        bzero(&address_6, sizeof(struct sockaddr_in6_desc));
-        address_6.sin6_len = sizeof(struct sockaddr_in6_desc);
+        struct sockaddr_in6 address_6;
+        bzero(&address_6, sizeof(struct sockaddr_in6));
+        address_6.sin6_len = sizeof(struct sockaddr_in6);
         address_6.sin6_family = AF_INET6;
         address = (struct sockaddr *)&address_6;
     }else{
-        struct sockaddr_in_desc address_4;
-        bzero(&address_4, sizeof(struct sockaddr_in_desc));//置0同memset
-        address_4.sin_len = sizeof(struct sockaddr_in_desc);
+        struct sockaddr_in address_4;
+        bzero(&address_4, sizeof(struct sockaddr_in));//置0同memset
+        address_4.sin_len = sizeof(struct sockaddr_in);
         address_4.sin_family = AF_INET;
         address = (struct sockaddr *)&address_4;
     }
