@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B4A7EB481FE75E7C00A7A3C9 /* func_struct_declare.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A7EB471FE75C2000A7A3C9 /* func_struct_declare.m */; };
+		B4A7EB491FE75E7C00A7A3C9 /* func_struct_declare.m in Sources */ = {isa = PBXBuildFile; fileRef = B4A7EB471FE75C2000A7A3C9 /* func_struct_declare.m */; };
 		B4FA12B61FE267E20089A96A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FA12B51FE267E20089A96A /* AppDelegate.m */; };
 		B4FA12B91FE267E20089A96A /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B4FA12B81FE267E20089A96A /* ViewController.m */; };
 		B4FA12BC1FE267E20089A96A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B4FA12BA1FE267E20089A96A /* Main.storyboard */; };
@@ -62,7 +64,7 @@
 
 /* Begin PBXFileReference section */
 		2AC9AF011FE6C32100735268 /* IPV4与IPV6兼容socket编程接口详解.doc */ = {isa = PBXFileReference; lastKnownFileType = file; path = "IPV4与IPV6兼容socket编程接口详解.doc"; sourceTree = "<group>"; };
-		B4A7EB471FE75C2000A7A3C9 /* func_struct_declare.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = func_struct_declare.h; sourceTree = "<group>"; };
+		B4A7EB471FE75C2000A7A3C9 /* func_struct_declare.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = func_struct_declare.m; sourceTree = "<group>"; };
 		B4FA12B11FE267E20089A96A /* Network_iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Network_iOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4FA12B41FE267E20089A96A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		B4FA12B51FE267E20089A96A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -203,7 +205,7 @@
 			children = (
 				B4FA12E31FE268500089A96A /* Test.h */,
 				B4FA12E21FE268500089A96A /* Test.m */,
-				B4A7EB471FE75C2000A7A3C9 /* func_struct_declare.h */,
+				B4A7EB471FE75C2000A7A3C9 /* func_struct_declare.m */,
 				2AC9AF011FE6C32100735268 /* IPV4与IPV6兼容socket编程接口详解.doc */,
 				B4FA13021FE26B260089A96A /* libxml2 */,
 			);
@@ -480,6 +482,7 @@
 				B4FA12C41FE267E20089A96A /* main.m in Sources */,
 				B4FA13761FE26E100089A96A /* libxmlParser.m in Sources */,
 				B4FA13591FE26BD50089A96A /* Addr_Interface.m in Sources */,
+				B4A7EB491FE75E7C00A7A3C9 /* func_struct_declare.m in Sources */,
 				B4FA135D1FE26C010089A96A /* Reachability.m in Sources */,
 				B4FA12B61FE267E20089A96A /* AppDelegate.m in Sources */,
 			);
@@ -496,6 +499,7 @@
 				B4FA135E1FE26C010089A96A /* Reachability.m in Sources */,
 				B4FA13011FE26AE50089A96A /* IMSIXMLParser.m in Sources */,
 				B4FA135A1FE26BD50089A96A /* Addr_Interface.m in Sources */,
+				B4A7EB481FE75E7C00A7A3C9 /* func_struct_declare.m in Sources */,
 				B4FA12E51FE268500089A96A /* Test.m in Sources */,
 				B4FA13631FE26C2B0089A96A /* Ping.m in Sources */,
 				B4FA13751FE26E100089A96A /* libxmlParser.m in Sources */,

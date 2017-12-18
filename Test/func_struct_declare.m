@@ -1,12 +1,12 @@
 //
-//  func_struct_declare.h
+//  func_struct_declare.m
 //  Network
 //
 //  Created by zhouqiang on 18/12/2017.
 //
 
-#ifndef func_struct_declare_h
-#define func_struct_declare_h
+#ifndef func_struct_declare_m
+#define func_struct_declare_m
 
 #import "Reachability.h"
 
@@ -220,4 +220,4 @@ int inet_pton(int family, const char *strptr, void *addrptr);
  */
 const char* inet_ntop(int family, const void *addrptr, char *strptr, socklen_t len);
 
-#endif /* func_struct_declare_h */
+#endif /* func_struct_declare_m */
