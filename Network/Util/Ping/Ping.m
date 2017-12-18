@@ -33,6 +33,7 @@ struct IPv4Header {
     // options...
     // data...
 };
+
 /*! Calculates an IP checksum.
  *  \details This is the standard BSD checksum code, modified to use modern types.
  *  \param buffer A pointer to the data to checksum.
@@ -129,7 +130,6 @@ static uint16_t in_cksum(const void *buffer, size_t bufferLen) {
 /*! Shuts down the pinger object and tell the delegate about the error.
  *  \param error Describes the failure.
  */
-
 - (void)didFailWithError:(NSError *)error {
     id<PingDelegate>  strongDelegate;
     
@@ -155,7 +155,6 @@ static uint16_t in_cksum(const void *buffer, size_t bufferLen) {
  *      -didFailWithError: to do the real work.
  *  \param streamError Describes the failure.
  */
-
 - (void)didFailWithHostStreamError:(CFStreamError)streamError {
     NSDictionary *  userInfo;
     NSError *       error;
@@ -176,7 +175,6 @@ static uint16_t in_cksum(const void *buffer, size_t bufferLen) {
  *  \param requiresChecksum Determines whether a checksum is calculated (IPv4) or not (IPv6).
  *  \returns A ping packet suitable to be passed to the kernel.
  */
-
 - (NSData *)pingPacketWithType:(uint8_t)type payload:(NSData *)payload requiresChecksum:(BOOL)requiresChecksum {
     NSMutableData     *packet;
     struct ICMPHeader *icmpPtr;
@@ -296,7 +294,6 @@ static uint16_t in_cksum(const void *buffer, size_t bufferLen) {
  *  \param packet The IPv4 packet, as returned to us by the kernel.
  *  \returns The offset of the ICMP header, or NSNotFound.
  */
-
 + (NSUInteger)icmpHeaderOffsetInIPv4Packet:(NSData *)packet {
     // Returns the offset of the ICMPv4Header within an IP packet.
     NSUInteger                  result;
@@ -321,7 +318,6 @@ static uint16_t in_cksum(const void *buffer, size_t bufferLen) {
  *  \param sequenceNumber The incoming sequence number.
  *  \returns YES if the sequence number looks like one we sent.
  */
-
 - (BOOL)validateSequenceNumber:(uint16_t)sequenceNumber {
     if (self.nextSequenceNumberHasWrapped) {
         // If the sequence numbers have wrapped that we can't reliably check
@@ -349,7 +345,6 @@ static uint16_t in_cksum(const void *buffer, size_t bufferLen) {
  *  \param sequenceNumberPtr A pointer to a place to start the ICMP sequence number.
  *  \returns YES if the packet looks like a reasonable IPv4 ping response.
  */
-
 - (BOOL)validatePing4ResponsePacket:(NSMutableData *)packet sequenceNumber:(uint16_t *)sequenceNumberPtr {
     BOOL                result;
     NSUInteger          icmpHeaderOffset;
@@ -397,7 +392,6 @@ static uint16_t in_cksum(const void *buffer, size_t bufferLen) {
  *  \param sequenceNumberPtr A pointer to a place to start the ICMP sequence number.
  *  \returns YES if the packet looks like a reasonable IPv4 ping response.
  */
-
 - (BOOL)validatePing6ResponsePacket:(NSMutableData *)packet sequenceNumber:(uint16_t *)sequenceNumberPtr {
     const struct ICMPHeader *icmpPtr;
     BOOL  result = NO;
@@ -429,7 +423,6 @@ static uint16_t in_cksum(const void *buffer, size_t bufferLen) {
  *  \param sequenceNumberPtr A pointer to a place to start the ICMP sequence number.
  *  \returns YES if the packet looks like a reasonable IPv4 ping response.
  */
-
 - (BOOL)validatePingResponsePacket:(NSMutableData *)packet sequenceNumber:(uint16_t *)sequenceNumberPtr {
     BOOL        result;
     
@@ -452,7 +445,6 @@ static uint16_t in_cksum(const void *buffer, size_t bufferLen) {
  *  \details Called by the socket handling code (SocketReadCallback) to process an ICMP
  *      message waiting on the socket.
  */
-
 - (void)readData {
     int                     err;
     struct sockaddr_storage addr;
@@ -525,7 +517,6 @@ static uint16_t in_cksum(const void *buffer, size_t bufferLen) {
  *  \param info See the documentation for CFSocketCallBack; this is actually a pointer to the
  *      'owning' object.
  */
-
 static void SocketReadCallback(CFSocketRef s, CFSocketCallBackType type, CFDataRef address, const void *data, void *info) {
     // This C routine is called by CFSocket when there's data waiting on our
     // ICMP socket.  It just redirects the call to Objective-C code.
@@ -551,7 +542,6 @@ static void SocketReadCallback(CFSocketRef s, CFSocketCallBackType type, CFDataR
  *      `hostAddress`.  It's responsible for setting up the socket for sending and
  *      receiving pings.
  */
-
 - (void)startWithHostAddress {
     int                     err;
     int                     fd;
@@ -700,13 +690,10 @@ static void HostResolveCallback(CFHostRef theHost, CFHostInfoType typeInfo, cons
     Boolean             success;
     CFHostClientContext context = {0, (__bridge void *)(self), NULL, NULL, NULL};
     CFStreamError       streamError;
-    
     assert(self.host == NULL);
     assert(self.hostAddress == nil);
-    
     self.host = (CFHostRef) CFAutorelease( CFHostCreateWithName(NULL, (__bridge CFStringRef) self.hostName) );
     assert(self.host != NULL);
-    
     CFHostSetClient(self.host, HostResolveCallback, &context);
     
     CFHostScheduleWithRunLoop(self.host, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);

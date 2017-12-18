@@ -106,11 +106,15 @@
     NSString *name = carrier.carrierName;//中国移动
     NSString *icc  = carrier.isoCountryCode;//cn
     BOOL allowVoip = carrier.allowsVOIP;//YES
-    printf("name:%s icc:%s voip:%s",name.UTF8String,icc.UTF8String,allowVoip ? "YES":"NO");
     self.cellularProvider = [IMSIManager infoForMCC:mcc MNC:mnc];
+    if (self.cellularProvider) {
+        printf("\n%s",self.cellularProvider.description.UTF8String);
+        return;
+    }
+    printf("name:%s icc:%s voip:%s",name.UTF8String,icc.UTF8String,allowVoip ? "YES":"NO");
     if ([mcc isEqualToString:@"460"]) {
         if (mnc) {
-            printf("\n中国");
+            printf("\t中国");
             NSArray<NSString *> *ChinaMobile  = @[@"00",@"02",@"07"];
             NSArray<NSString *> *ChinaUnicom  = @[@"01",@"06",@"09"];
             NSArray<NSString *> *ChinaTelecom = @[@"03",@"05",@"11"];
@@ -134,20 +138,20 @@ static void NetworkReachabilityReleaseContextCallback(const void *info) {
 static CFStringRef NetworkReachabilityCopyDescriptionCallback(const void *info){
     return CFSTR("context is a block");
 }
-static void NetWorkStatusManagerReachabilityCallback(SCNetworkReachabilityRef __unused target, SCNetworkReachabilityFlags flags, void *info){
+static void NetWorkReachabilityCallback(SCNetworkReachabilityRef __unused target, SCNetworkReachabilityFlags flags, void *info){
     [Reachability.shared update];
-    void(^block)(NetworkStatus status) = (__bridge void(^)(NetworkStatus status))info;
-    !block ?: block(Reachability.shared.status);
+//    void(^block)(NetworkStatus status) = (__bridge void(^)(NetworkStatus status))info;
+//    !block ?: block(Reachability.shared.status);
 }
 - (BOOL)notifyNetworkStatus
 {
     if (!self.reachabilityRef) {
         return NO;
     }
-    __weak typeof(self) weakSelf = self;
+//    __weak typeof(self) weakSelf = self;
     void(^block)(NetworkStatus status) = ^(NetworkStatus status){
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        strongSelf.status = status;
+//        __strong typeof(weakSelf) strongSelf = weakSelf;
+//        strongSelf.status = status;
     };
     CFIndex version = 0;
     void *info = (__bridge void *)block;
@@ -155,7 +159,7 @@ static void NetWorkStatusManagerReachabilityCallback(SCNetworkReachabilityRef __
         NetworkReachabilityRetainContextCallback,
         NetworkReachabilityReleaseContextCallback,
         NetworkReachabilityCopyDescriptionCallback};
-    if (SCNetworkReachabilitySetCallback(self.reachabilityRef, NetWorkStatusManagerReachabilityCallback, &context) &&
+    if (SCNetworkReachabilitySetCallback(self.reachabilityRef, NetWorkReachabilityCallback, &context) &&
         SCNetworkReachabilityScheduleWithRunLoop(self.reachabilityRef, CFRunLoopGetMain(), kCFRunLoopCommonModes)) {
         return YES;
     }
@@ -168,6 +172,14 @@ static void NetWorkStatusManagerReachabilityCallback(SCNetworkReachabilityRef __
     }
     _status = status;
     !_networkStatusChangedBlock ?: _networkStatusChangedBlock(_status);
+}
+- (void)setNetworkStatusChangedBlock:(void (^)(NetworkStatus))networkStatusChangedBlock
+{
+    if (_networkStatusChangedBlock == networkStatusChangedBlock) {
+        return;
+    }
+    _networkStatusChangedBlock = networkStatusChangedBlock;
+    self.status = self.status;
 }
 - (void)notifySimCard
 {

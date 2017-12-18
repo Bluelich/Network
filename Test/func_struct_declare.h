@@ -1,11 +1,13 @@
 //
-//  Desc.m
-//  NetWork
+//  func_struct_declare.h
+//  Network
 //
-//  Created by Bluelich on 17/12/2017.
+//  Created by zhouqiang on 18/12/2017.
 //
 
-#import <Foundation/Foundation.h>
+#ifndef func_struct_declare_h
+#define func_struct_declare_h
+
 #import "Reachability.h"
 
 /*
@@ -25,18 +27,6 @@
  通配地址
  ipV4：0.0.0.0
  ipV6：::
- 
- 作为服务器端时：
- struct addrinfo hints, *res=NULL;
- memset(&hints,0,sizeof(hints));
- hints.ai_family=AF_UNSPEC;  //hints.ai_family=AF_INET6;
- hints.ai_socktype=SOCK_DGRAM;  //hints.ai_protocol=IPPROTO_UDP;
- hints.ai_flags=AI_PASSIVE;
- rc=getaddrinfo(NULL,"123",&hints,&res);
- socket=socket(res->ai_family,res->ai_socktype,res->ai_protocol);
- bind (socket,res->ai_addr,res->ai_addrlen);
- hints可看作是过滤条件
- res返回一个地址链表,一般来说用第一个bind成功就可以了
  */
 
 struct addrinfo_my_desc {
@@ -229,3 +219,5 @@ int inet_pton(int family, const char *strptr, void *addrptr);
  * @returns        若分配给strptr的len不足:errno->ENOSPC。成功则返回指向结构的指针，出错则为NULL。
  */
 const char* inet_ntop(int family, const void *addrptr, char *strptr, socklen_t len);
+
+#endif /* func_struct_declare_h */

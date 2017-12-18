@@ -18,8 +18,13 @@ static NSString * const kIMSI_PLMN_RESOURCE_URL = @"http://www.mcc-mnc.com/";
 + (void)load
 {
     if (IMSIManager.allPMLNs.count == 0) {
-        NSError *error = nil;
-        [IMSIManager update:&error];
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            NSError *error = nil;
+            [IMSIManager update:&error];
+            if (error) {
+                printf("err:%s",error.description.UTF8String);
+            }
+        });
     }
 }
 + (instancetype)shared

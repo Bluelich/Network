@@ -38,7 +38,7 @@
 }
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"MCC:%@ MNC:%@ ISO:%@ country:%@ countryCode:%@ network:%@ MSIN:%@",self.MCC,self.MNC,self.ISO,self.country,self.countryCode,self.network,self.MSIN];
+    return [NSString stringWithFormat:@"{\n\tMCC:%@\n\tMNC:%@\n\tISO:%@\n\tcountry:%@\n\tcountry Code:%@\n\tnetwork:%@\n}",self.MCC,self.MNC,self.ISO,self.country,self.countryCode,self.network];
 }
 @end
 

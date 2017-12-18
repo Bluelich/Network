@@ -12,6 +12,72 @@
 #import <sys/event.h>
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
 
+#if  TARGET_OS_OSX
+static const void *NetworkConnectionRetainContextCallback(const void *info) {
+    return Block_copy(info);
+}
+static void NetworkConnectionReleaseContextCallback(const void *info) {
+    !info ?: Block_release(info);
+}
+static CFStringRef NetworkConnectionCopyDescriptionCallback(const void *info){
+    return CFSTR("context desc");
+}
+void NetworkConnectionCallBack(SCNetworkConnectionRef connection,SCNetworkConnectionStatus status,void * __nullable info){
+    
+}
+void test_connection(){
+    void(^block)(SCNetworkConnectionRef connection,SCNetworkConnectionStatus status) = ^(SCNetworkConnectionRef connection,SCNetworkConnectionStatus status){
+        SCNetworkConnectionStatus status2 = SCNetworkConnectionGetStatus(connection);
+        switch (status2) {
+            case kSCNetworkConnectionInvalid:
+                break;
+            case kSCNetworkConnectionConnecting:
+                break;
+            case kSCNetworkConnectionConnected:
+                break;
+            case kSCNetworkConnectionDisconnecting:
+                break;
+            case kSCNetworkConnectionDisconnected:
+                break;
+        }
+    };
+    CFIndex version = 0;
+    void *info = (__bridge void *)block;
+    SCNetworkConnectionCallBack callout = NetworkConnectionCallBack;
+    SCNetworkConnectionContext context = {version,info,
+                                          NetworkConnectionRetainContextCallback,
+                                          NetworkConnectionReleaseContextCallback,
+                                          NetworkConnectionCopyDescriptionCallback};
+    SCNetworkConnectionRef connection = SCNetworkConnectionCreateWithServiceID(kCFAllocatorDefault, CFSTR("serviceID"), callout, &context);
+    SCNetworkConnectionSetDispatchQueue(connection, dispatch_queue_create("", DISPATCH_QUEUE_SERIAL));
+    SCNetworkConnectionScheduleWithRunLoop(connection, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+    Boolean linger = true; //在闲置的时候不自动停止
+    //https://developer.apple.com/library/content/documentation/Networking/Conceptual/SystemConfigFrameworks/SC_UnderstandSchema/SC_UnderstandSchema.html#//apple_ref/doc/uid/TP40001065-CH203-CHDFBDCB
+    NSDictionary *options = @{@"UserDefinedName":@"e.g.ISP名称,将会显示在:偏好设置->网络->位置",
+                              @"Network":@{@"Global":@{@"NetInfo":@"",
+                                                       @"IPv4":@{@"ServiceOrder":@[],
+                                                                 @"OverridePrimary":@"",
+                                                                 @"PPPOverridePrimary":@""},},
+                                           @"Interface":@{@"en0":@{@"Ethernet":@{@"Speed":@"",
+                                                                                 @"duplex":@"",
+                                                                                 @"MTU":@"",
+                                                                                 @"__INACTIVE__":@""}}},//auto only
+                                           @"Service":@{@"100":@{@"IPv4":@{@"ConfigMethod":@"BootP"},
+                                                                 @"DNS":@{},
+                                                                 @"Interface":@{@"DeviceName":@"en0",
+                                                                                @"Hardware":@"Ethernet",
+                                                                                @"Type":@"Ethernet",
+                                                                                @"UserDefinedName":@"Built-in Ethernet"
+                                                                                },
+                                                                 @"UserDefinedName":@"Built-in Ethernet"}}}};
+    SCNetworkConnectionStart(connection, (__bridge CFDictionaryRef)options, linger);
+    options = (__bridge NSDictionary *)SCNetworkConnectionCopyUserOptions(connection);
+    Boolean forceDisconnect = true;
+    SCNetworkConnectionStop(connection, forceDisconnect);
+    SCNetworkConnectionUnscheduleFromRunLoop(connection, CFRunLoopGetMain(), kCFRunLoopCommonModes);
+}
+#endif
+
 /*
  The following code tries to connect to ``www.kame.net'' service ``http'' via a stream socket.
  It loops through all the addresses available, regardless of address family.
@@ -42,14 +108,12 @@ void test1(){
             cause = "socket";
             continue;
         }
-        
         if (connect(s, res->ai_addr, res->ai_addrlen) < 0) {
             cause = "connect";
             close(s);
             s = -1;
             continue;
         }
-        
         break;  /* okay we got one */
     }
     if (s < 0) {
