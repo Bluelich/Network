@@ -10,7 +10,6 @@
 #import <err.h>
 #import <dns_sd.h>
 #import <sys/event.h>
-#import <MultipeerConnectivity/MultipeerConnectivity.h>
 
 #if  TARGET_OS_OSX
 static const void *NetworkConnectionRetainContextCallback(const void *info) {
@@ -376,6 +375,8 @@ void socket_udp_client_test(){
     recvfrom(1, "", 1, 1, &addr, &len);
     close(1);
 }
+
+#import <MultipeerConnectivity/MultipeerConnectivity.h>
 
 @interface Task ()
 <

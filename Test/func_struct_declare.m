@@ -243,4 +243,96 @@ int inet_pton(int family, const char *strptr, void *addrptr);
  */
 const char* inet_ntop(int family, const void *addrptr, char *strptr, socklen_t len);
 
+
+
+#pragma mark - Socket
+/**
+ create a socket
+
+ @param domain 协议域，AF_INET
+ @param type Socket 类型，  SOCK_STREAM(TCP)/SOCK_DGRAM(UDP，报文)
+ @param protocol IPPROTO_TCP，协议，如果输入0，可以根据第二个参数，自动选择协议
+ @return 如果 > 0 就表示成功
+ */
+int socket(int domain, int type, int protocol);
+
+
+/**
+ connect
+
+ @param socket 客户端socket
+ @param address 指向数据结构sockaddr的指针，其中包括目的端口和IP地址,服务器的"结构体"地址
+ @param address_len 结构体数据长度
+ @return 0:成功  其他:错误代号
+ */
+int connect(int socket, const struct sockaddr *address, socklen_t address_len);
+int connectx(int socket, const sa_endpoints_t *endpoints, sae_associd_t associd,unsigned int flags,
+             const struct iovec *iov, unsigned int iovcnt, size_t *len, sae_connid_t *connid);
+int disconnectx(int socket, sae_associd_t associd, sae_connid_t connid);
+
+/**
+ send data
+
+ @param socket 客户端socket
+ @param buffer 发送内容地址
+ @param length 发送内容长度
+ @param flags 发送方式标志，一般为0
+ @return 如果成功，则返回发送的字节数，失败则返回...
+ */
+ssize_t send(int socket, const void *buffer, size_t length, int flags);
+ssize_t sendmsg(int socket, const struct msghdr *message, int flags);
+ssize_t sendto(int socket, const void *buffer, size_t length, int flags,
+               const struct sockaddr *dest_addr, socklen_t dest_len);
+
+/**
+ receive data
+ 
+ @param socket 创建的socket
+ @param buffer 接收内容的地址
+ @param length 接收内容的长度
+ @param flags 接收数据的标记 0，就是阻塞式，一直等待服务器的数据
+ @return 接收到的数据长度
+ */
+ssize_t recv(int socket, void *buffer, size_t length, int flags);
+ssize_t recvfrom(int socket, void *restrict buffer, size_t length, int flags,
+         struct sockaddr *restrict address, socklen_t *restrict address_len);
+ssize_t recvmsg(int socket, struct msghdr *message, int flags);
+
+/**
+ close socket
+
+ @param sockfd 创建的socket
+ @return 无错误,返回0,否则返回...
+ */
+int close(int sockfd);
+
+/**
+ 选择性关闭
+ 
+ @param sockfd 创建的socket
+ @param how SHUT_RD  : shut down the reading side
+            SHUT_WR  : shut down the writing side
+            SHUT_RDWR: shut down both sides,same to close(int)
+ @return a
+ */
+int shutdown(int sockfd, int how);
+/**
+ other
+ */
+int  sockatmark(int s);
+int  listen(int socket, int backlog);
+void pfctlinput(int cmd, struct sockaddr *sa);
+int  socketpair(int domain, int type, int protocol, int socket_vector[2]);
+int  sendfile(int fd, int s, off_t offset, off_t *len, struct sf_hdtr *hdtr, int flags);
+int  accept(int sockfd, struct sockaddr * __restrict addr, socklen_t * __restrict addrlen);
+int  getpeername(int socket, struct sockaddr *restrict address, socklen_t *restrict address_len);
+int  getsockname(int socket, struct sockaddr *restrict address, socklen_t *restrict address_len);
+int  setsockopt(int socket, int level, int option_name, const void *option_value, socklen_t option_len);
+int  getsockopt(int socket, int level, int option_name, void *restrict option_value, socklen_t *restrict option_len);
+int  bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
+
+void test(){
+    SO_DEBUG;
+    
+}
 #endif /* func_struct_declare_m */

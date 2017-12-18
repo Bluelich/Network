@@ -138,6 +138,23 @@ typedef NS_ENUM(NSUInteger, addr_sin_family) {
     addr_sin_family_AF_MAX              = AF_MAX,
 #endif
 };
+typedef NS_OPTIONS(NSInteger, SO_Options) {
+    SO_Options_DEBUG                = SO_DEBUG,                //turn on debugging info recording
+    SO_Options_ACCEPTCONN           = SO_ACCEPTCONN,           //socket has had listen()
+    SO_Options_REUSEADDR            = SO_REUSEADDR,            //allow local address reuse
+    SO_Options_KEEPALIVE            = SO_KEEPALIVE,            //keep connections alive
+    SO_Options_DONTROUTE            = SO_DONTROUTE,            //just use interface addresses
+    SO_Options_BROADCAST            = SO_BROADCAST,            //permit sending of broadcast msgs
+    SO_Options_USELOOPBACK          = SO_USELOOPBACK,          //bypass hardware when possible
+    SO_Options_LINGER               = SO_LINGER,               //linger on close if data present (in ticks or in seconds)
+    SO_Options_OOBINLINE            = SO_OOBINLINE,            //leave received OOB data in line
+    SO_Options_REUSEPORT            = SO_REUSEPORT,            //allow local address & port reuse
+    SO_Options_TIMESTAMP            = SO_TIMESTAMP,            //timestamp received dgram traffic
+    SO_Options_TIMESTAMP_MONOTONIC  = SO_TIMESTAMP_MONOTONIC,  //Monotonically increasing timestamp on rcvd dgram
+    SO_Options_DONTTRUNC            = SO_DONTTRUNC,            //APPLE: Retain unread data (ATOMIC proto)
+    SO_Options_WANTMORE             = SO_WANTMORE,             //APPLE: Give hint when more data ready
+    SO_Options_WANTOOBFLAG          = SO_WANTOOBFLAG,          //APPLE: Want OOB in MSG_FLAG on receive
+};
 typedef NS_ENUM(NSUInteger, Address_format) {
     Address_format_other  = 0,
     Address_format_ipv4   = AF_INET,
