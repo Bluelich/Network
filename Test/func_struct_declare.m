@@ -11,12 +11,12 @@
 #import "Reachability.h"
 
 /*
- 随着运营商和企业逐渐部署IPV6 DNS64/NAT64网络之后，设备被分配的地址会变成IPV6的地址，
- 而这些网络就是所谓的IPV6-Only网络，并且仍然可以通过此网络去获取IPV4地址提供的内容。
- 客户端向服务器端请求域名解析，首先通过DNS64 Server查询IPv6的地址，如果查询不到，再向DNS Server查询IPv4地址，
- 通过DNS64 Server合成一个IPV6的地址，最终将一个IPV6的地址返回给客户端。
+ 随着运营商和企业逐渐部署ipv6 DNS64/NAT64网络之后，设备被分配的地址会变成ipv6的地址，
+ 而这些网络就是所谓的ipv6-only网络，并且仍然可以通过此网络去获取ipv4地址提供的内容。
+ 客户端向服务器端请求域名解析，首先通过DNS64 Server查询ipv6的地址，如果查询不到，再向DNS Server查询ipv4地址，
+ 通过DNS64 Server合成一个ipv6的地址，最终将一个ipv6的地址返回给客户端。
  
- 除了解决 IPv4 枯竭问题, IPv6 比 IPv4 更有效率。
+ 除了解决 ipv4 枯竭问题, ipv6 比 ipv4 更有效率。
  1.避免了网络地址转换 (NAT) 的需要
  2.通过使用简化的报头通过网络提供更快的路由
  3.防止网络碎片
@@ -25,8 +25,8 @@
 
 /*
  通配地址
- ipV4：0.0.0.0
- ipV6：::
+ ipv4：0.0.0.0
+ ipv6：::
  */
 
 struct addrinfo_my_desc {
@@ -45,8 +45,8 @@ struct addrinfo_my_desc {
      
      
      AI_NUMERICSERV:提供的非空servname字符串应为数字端口字符串。否则,将返回EAI_NONAME错误。防止调用任意name解析服务(例如NIS+)
-     AI_ADDRCONFIG:只有在本地系统上配置了IPv4或IPv6地址后,才会返回对应的IPv4地址或IPv6地址.
-     AI_ALL:如果设置了AI_V4MAPPED,那么 getaddrinfo()将返回所有匹配的IPv4和 IPv6地址。未设置AI_V4MAPPED会被忽略。
+     AI_ADDRCONFIG:只有在本地系统上配置了ipv4或ipv6地址后,才会返回对应的ipv4地址或ipv6地址.
+     AI_ALL:如果设置了AI_V4MAPPED,那么 getaddrinfo()将返回所有匹配的ipv4和 ipv6地址。未设置AI_V4MAPPED会被忽略。
      AI_V4MAPPED:当ai_family=PF_INET6,无对应的ipv6(ai_addrlen=16)地址时候,会返ipv4转换的ipv6地址. ai_family!=PF_INET6会被忽略
      AI_DEFAULT: 等价于(AI_V4MAPPED_CFG | AI_ADDRCONFIG)
      AI_UNUSABLE:当ai_flags为0时的内部默认值.这会影响AI_V4MAPPED_CFG和AI_ADDRCONFIG的隐式设置,导致结果中包含不可用的地址。
@@ -54,7 +54,7 @@ struct addrinfo_my_desc {
     int    ai_flags;            //或运算 AI_PASSIVE,AI_CANONNAME,AI_NUMERICHOST
     int    ai_family;           // PF_xxx 协议族类型.PF_UNSPEC(任意协议族)
     int    ai_socktype;         // SOCK_xxx 套接字类型: SOCK_STREAM、SOCK_DGRAM 或 SOCK_RAW。0:任意套接字类型
-    int    ai_protocol;         //传输协议 0(任意传输协议) or IPPROTO_xxx[IPv4,IPv6],IPPROTO_UDP,IPPROTO_TCP
+    int    ai_protocol;         //传输协议 0(任意传输协议) or IPPROTO_xxx[ipv4,ipv6],IPPROTO_UDP,IPPROTO_TCP
     socklen_t ai_addrlen;       // ai_addr 的 长度
     char    *ai_canonname;      // canonical name for hostname
     struct    sockaddr *ai_addr;// binary address
@@ -69,7 +69,7 @@ struct addrinfo_my_desc {
  192~320 目标地址
  
  流标签
- RFC2460对IPv6流标签的特征进行了说明：
+ RFC2460对ipv6流标签的特征进行了说明：
  (1) 一个流由源地址和流标签的组合唯一确定。 一对源和目的之间有可能有多个激活的流，也可能有不属于任何一个流的流量
  (2) 所携带的流标签值为 0 的数据包不属于任何一个流。
  (3)需要发送流的源节点赋给其流标签特定的值。流标签是一个随机数，目的是使所产生的流标签都能作为哈希关键字。
@@ -106,14 +106,37 @@ struct sockaddr_storage_desc {
 };
 
 
-
-
+struct sockaddr_storage a;
 //http://blog.csdn.net/u013613341/article/details/50762913
-
-//ipv4主机名和地址转换
+/**
+  主机名和地址转换
+ \details ipv4 only
+ \details 主机名->地址
+ @param name 主机名
+ @return 地址
+ */
 struct hostent *gethostbyname(const char *name);
+
+/**
+ 主机地址转换
+ \details ipv4 only
+ \details 主机名->地址
+
+ @param addr ipv4地址
+ @param len socklen_t
+ @param type int
+ @return 地址
+ */
 struct hostent *gethostbyaddr(const void *addr, socklen_t len, int type);
 //ipv4,ipv6兼容的转换函数
+
+/**
+ \details ipv4 and ipv6
+
+ @param name 主机名
+ @param af int
+ @return 地址
+ */
 struct hostent *gethostbyname2(const char *name, int af);
 /**
  用于获取主机主机名和服务对应的 IP地址和端口号的列表.
