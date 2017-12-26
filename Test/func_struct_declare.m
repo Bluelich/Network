@@ -332,7 +332,6 @@ int  getsockopt(int socket, int level, int option_name, void *restrict option_va
 int  bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);
 
 void test(){
-    SO_DEBUG;
     
 }
 #endif /* func_struct_declare_m */

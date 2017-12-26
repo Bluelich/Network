@@ -179,7 +179,7 @@ static void NetWorkReachabilityCallback(SCNetworkReachabilityRef __unused target
         return;
     }
     _networkStatusChangedBlock = networkStatusChangedBlock;
-    self.status = self.status;
+    !_networkStatusChangedBlock ?: _networkStatusChangedBlock(self.status);
 }
 - (void)notifySimCard
 {

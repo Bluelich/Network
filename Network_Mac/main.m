@@ -6,11 +6,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Reachability.h"
 
 int main(int argc, const char * argv[]) {
-    @autoreleasepool {
-        // insert code here...
-        NSLog(@"Hello, World!");
-    }
+    [Reachability.shared setNetworkStatusChangedBlock:^(NetworkStatus status) {
+        printf("%s\n",NSStringFromNetworkStatus(status).UTF8String);
+    }];
+    [NSRunLoop.currentRunLoop run];
     return 0;
 }
