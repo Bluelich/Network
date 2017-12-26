@@ -6,6 +6,11 @@
 //
 
 #import "Reachability.h"
+#import <TargetConditionals.h>
+
+#if TARGET_OS_OSX
+    #import <CoreWLAN/CoreWLAN.h>
+#endif
 
 @interface Reachability ()
 @property (nonatomic)dispatch_queue_t                 reachabilityQueue;
@@ -42,9 +47,7 @@
 - (void)update
 {
     [self updateNetworkStatus];
-#if TARGET_OS_IPHONE
     [self updateSSID];
-#endif
     [self updateCellularProvider];
 }
 - (void)notify
@@ -74,6 +77,13 @@
         NSString *bssid = (__bridge NSString *)CFDictionaryGetValue(info, kCNNetworkInfoKeyBSSID);
         NSData   *data  = (__bridge NSData   *)CFDictionaryGetValue(info, kCNNetworkInfoKeySSIDData);
         self.WiFiInfo = [[WiFi alloc] initWithSSID:ssid BSSID:bssid SSIDData:data];
+    }
+#elif TARGET_OS_OSX
+    for (CWInterface *interface in CWWiFiClient.sharedWiFiClient.interfaces) {
+        if ([interface.interfaceName.lowercaseString isEqualToString:@"eno".lowercaseString]) {
+            self.WiFiInfo = [[WiFi alloc] initWithSSID:interface.ssid BSSID:interface.bssid SSIDData:interface.ssidData];
+            break;
+        }
     }
 #endif
 }
