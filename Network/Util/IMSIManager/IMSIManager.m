@@ -76,14 +76,9 @@ static NSString * const kIMSI_PLMN_RESOURCE_URL = @"http://www.mcc-mnc.com/";
     if (self.data.count == 0) {
         return nil;
     }
-    __block IMSI *res = nil;
-    [self.data enumerateObjectsUsingBlock:^(IMSI * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if ([obj.MCC isEqualToString:MCC] && [obj.MNC isEqualToString:MNC]) {
-            res = obj;
-            *stop = YES;
-        }
-    }];
-    return res;
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"MCC=%@ and MNC=%@",MCC,MNC];
+    NSArray *results = [self.data filteredArrayUsingPredicate:predicate];
+    return results.firstObject;
 }
 - (void)loadLocalData:(NSError **)error
 {
