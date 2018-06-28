@@ -17,6 +17,7 @@
  */
 @interface Reachability : NSObject
 
+@property (class,nonatomic,strong) NSString *hostName;
 @property (class,nonatomic,strong,readonly) Reachability *shared;
 @property (nonatomic,assign,readonly) NetworkStatus     status;
 @property (nonatomic,strong,readonly) IMSI             *cellularProvider;

@@ -113,7 +113,7 @@ static NSString * const kIMSI_PLMN_RESOURCE_URL = @"http://www.mcc-mnc.com/";
     [result enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(NSTextCheckingResult * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         NSRange range = NSMakeRange(0, 0);
         if (@available(macOS 10.13,iOS 11.0, *)) {
-            range = [obj  rangeWithName:@"noamp"];
+            range = [obj rangeWithName:@"noamp"];
         } else {
             range = [obj rangeAtIndex:1];
         }

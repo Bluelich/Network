@@ -24,14 +24,31 @@
 @property (nonatomic,strong) WiFi                    *WiFiInfo;
 @end
 
+static const char *kReachabilityHost = "https://www.apple.com";
 @implementation Reachability
++ (void)setHostName:(NSString *)hostName
+{
+    if (hostName) {
+        kReachabilityHost = hostName.UTF8String;
+        Reachability.shared.reachabilityRef = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, kReachabilityHost);
+        if (Reachability.shared.reachabilityRef && Reachability.shared.reachabilityQueue) {
+            SCNetworkReachabilitySetDispatchQueue(Reachability.shared.reachabilityRef, Reachability.shared.reachabilityQueue);
+        }
+        [Reachability.shared update];
+        [Reachability.shared notify];
+    }
+}
++ (NSString *)hostName
+{
+    return [NSString stringWithUTF8String:kReachabilityHost];
+}
 + (Reachability *)shared
 {
     static dispatch_once_t onceToken;
     static Reachability *manager = nil;
     dispatch_once(&onceToken, ^{
         manager = [[Reachability alloc] init];
-        manager.reachabilityRef      = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, @"www.apple.com".UTF8String);
+        manager.reachabilityRef      = SCNetworkReachabilityCreateWithName(kCFAllocatorDefault, kReachabilityHost);
         manager.reachabilityQueue    = dispatch_queue_create("com.bluelich.reachability.queue", DISPATCH_QUEUE_SERIAL);
         if (manager.reachabilityRef && manager.reachabilityQueue) {
             SCNetworkReachabilitySetDispatchQueue(manager.reachabilityRef, manager.reachabilityQueue);
@@ -79,11 +96,11 @@
         self.WiFiInfo = [[WiFi alloc] initWithSSID:ssid BSSID:bssid SSIDData:data];
     }
 #elif TARGET_OS_OSX
-    for (CWInterface *interface in CWWiFiClient.sharedWiFiClient.interfaces) {
-        if ([interface.interfaceName.lowercaseString isEqualToString:@"eno".lowercaseString]) {
-            self.WiFiInfo = [[WiFi alloc] initWithSSID:interface.ssid BSSID:interface.bssid SSIDData:interface.ssidData];
-            break;
-        }
+//    NSLog(@"\nCWWiFiClient.interfaceNames:%@\n\n",CWWiFiClient.interfaceNames);
+    CWInterface *interface = CWWiFiClient.sharedWiFiClient.interface;
+//    NSLog(@"\ninterface:\n%@ \n ` \n",WiFiDescriptionForCWInterface(interface));
+    if (interface) {
+        self.WiFiInfo = [[WiFi alloc] initWithSSID:interface.ssid BSSID:interface.bssid SSIDData:interface.ssidData];
     }
 #endif
 }

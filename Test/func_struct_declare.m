@@ -134,7 +134,7 @@ struct hostent *gethostbyaddr(const void *addr, socklen_t len, int type);
  \details ipv4 and ipv6
 
  @param name 主机名
- @param af int
+ @param af int AF_INET AF_INET6
  @return 地址
  */
 struct hostent *gethostbyname2(const char *name, int af);
