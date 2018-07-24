@@ -97,16 +97,12 @@ static NSString * const kIMSI_PLMN_RESOURCE_URL = @"http://www.mcc-mnc.com/";
     NSError *err = nil;
     NSMutableString *html = [NSString stringWithContentsOfURL:[NSURL URLWithString:kIMSI_PLMN_RESOURCE_URL] encoding:NSUTF8StringEncoding error:&err].mutableCopy;
     if (err) {
-        if (error) {
-            *error = err;
-        }
+        error && (*error = err);
         return nil;
     }
     NSRegularExpression *regularExpression = [NSRegularExpression regularExpressionWithPattern:@"<td>*>(?:[^<]*)(?<noamp>(&(?!amp;))+)(?:[^<]*)</td>" options:NSRegularExpressionCaseInsensitive | NSRegularExpressionDotMatchesLineSeparators error:&err];
     if (err) {
-        if (error) {
-            *error = err;
-        }
+        error && (*error = err);
         return nil;
     }
     NSArray<NSTextCheckingResult *> *result = [regularExpression matchesInString:html options:NSMatchingReportCompletion range:NSMakeRange(0, html.length)];
@@ -130,7 +126,7 @@ static NSString * const kIMSI_PLMN_RESOURCE_URL = @"http://www.mcc-mnc.com/";
     IMSIXMLParser *parser = [[IMSIXMLParser alloc] initWithData:data];
     [parser parse];
     if (parser.parserError) {
-        *error = parser.parserError;
+        error && (*error = parser.parserError);
         return NO;
     }
     self.data = parser.results;
