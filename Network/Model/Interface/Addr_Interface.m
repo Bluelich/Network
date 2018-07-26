@@ -200,10 +200,11 @@ NSArray<NSString *> *getInterfaceNames(void);
         interface.ifa_data    = ifaddr_tmp->ifa_data;
         [interface parser];
         [interfaces addObject:interface];
-        printf("\nflag:%s",NSStringFrom_if_flags(interface.ifa_flags).description.UTF8String);
+        printf("\n\n\n[flag]:%s",NSStringFrom_if_flags(interface.ifa_flags).description.UTF8String);
         sockaddr_desc(interface.ifa_addr,    "ifa_addr");
         sockaddr_desc(interface.ifa_netmask, "ifa_netmask");
         sockaddr_desc(interface.ifa_dstaddr, "ifa_dstaddr");
+        printf("\n");
         ifaddr_tmp = ifaddr_tmp->ifa_next;
     }
     freeifaddrs(ifaddr);
@@ -228,28 +229,26 @@ NSArray<NSString *> *getInterfaceNames(void);
         {
             self.address_format = Address_format_ipv4;
             len = INET_ADDRSTRLEN;
-            struct sockaddr_in *addr_ipv4 = (struct sockaddr_in *)self.ifa_addr;
-            addr =  &addr_ipv4->sin_addr;
+            struct sockaddr_in addr_ipv4 = *(struct sockaddr_in *)self.ifa_addr;
+            addr =  &addr_ipv4.sin_addr;
         }
             break;
         case addr_sin_family_AF_INET6:
         {
             self.address_format = Address_format_ipv6;
             len = INET6_ADDRSTRLEN;
-            struct sockaddr_in6 *addr_ipv6 = (struct sockaddr_in6 *)self.ifa_addr;
-            addr =  &addr_ipv6->sin6_addr;
+            struct sockaddr_in6 addr_ipv6 = *(struct sockaddr_in6 *)self.ifa_addr;
+            addr =  &addr_ipv6.sin6_addr;
         }
             break;
         default:
             self.address_format = Address_format_other;
-            break;
+            return;
     }
-    if (len) {
-        char addr_buf[len];
-        const char *ptr = inet_ntop(self.ifa_addr->sa_family, addr, addr_buf, len);
-        printf("%p",ptr);
-        self.addr = [NSString stringWithUTF8String:addr_buf];
-    }
+    char addr_buf[len];
+    const char *ptr = inet_ntop(self.ifa_addr->sa_family, addr, addr_buf, len);
+    printf("%p",ptr);
+    self.addr = [NSString stringWithUTF8String:addr_buf];
 }
 @end
 NSArray<NSString *> *getInterfaceNames(){

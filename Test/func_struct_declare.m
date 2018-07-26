@@ -227,6 +227,7 @@ char *inet_ntoa(struct in_addr inaddr);
 //应尽量使用随ipv6出现的`inet_pton`和`inet_ntop`,以保证ipv4与ipv6的兼容性。
 /**
  * @brief ip string -> sockaddr
+ * @param family      协议族，AF_INET或AF_INET6
  * @param strptr      字符串地址,e.g. "192.168.1.100"
  * @param addrptr     void *, 通过指针返回in_addr或in6_ddr结构体
  * @returns           success:1，invalid arguments:0，error occured:-1.
@@ -270,20 +271,65 @@ int connectx(int socket, const sa_endpoints_t *endpoints, sae_associd_t associd,
              const struct iovec *iov, unsigned int iovcnt, size_t *len, sae_connid_t *connid);
 int disconnectx(int socket, sae_associd_t associd, sae_connid_t connid);
 
+//仅方便记忆
+//http://www.360doc.com/content/16/1104/16/496343_603923523.shtml
+typedef NS_ENUM(NSUInteger, _socket_flag) {
+    _socket_flag_MSG_DONTROUTE  = MSG_DONTROUTE,//send可用 bypass routing, use direct interface
+//    _socket_flag_MSG_DONWAIT   = MSG_DONWAIT,//send与recv都可用
+    _socket_flag_MSG_PEEK       = MSG_PEEK,//recv可用
+    _socket_flag_MSG_WAITALL    = MSG_WAITALL,//recv可用 wait for full request or error
+    _socket_flag_MSG_OOB        = MSG_OOB,//send可用  process out-of-band data
+    _socket_flag_MSG_EOR        = MSG_EOR,//send与recv都可用 data completes record
+    _socket_flag_MSG_TRUNC      = MSG_TRUNC, //data discarded before delivery
+    _socket_flag_MSG_CTRUNC     = MSG_CTRUNC,//control data lost before delivery
+#if !defined(_POSIX_C_SOURCE) || defined(_DARWIN_C_SOURCE)
+    _socket_flag_MSG_DONTWAIT   = MSG_DONTWAIT,//this message should be nonblocking */
+    _socket_flag_MSG_EOF        = MSG_EOF,// data completes connection */
+    #ifdef __APPLE__
+        #ifdef __APPLE_API_OBSOLETE
+    _socket_flag_MSG_WAITSTREAM = MSG_WAITSTREAM,// wait up to full request.. may return partial */
+        #endif
+    _socket_flag_MSG_FLUSH      = MSG_FLUSH ,//Start of 'hold' seq; dump so_temp */
+    _socket_flag_MSG_HOLD       = MSG_HOLD,//Hold frag in so_temp */
+    _socket_flag_MSG_SEND       = MSG_SEND,//Send the packet in so_temp */
+    _socket_flag_MSG_HAVEMORE   = MSG_HAVEMORE,//Data ready to be read */
+    _socket_flag_MSG_RCVMORE    = MSG_RCVMORE,//Data remains in current pkt */
+    #endif
+    _socket_flag_MSG_NEEDSA     = MSG_NEEDSA,//Fail receive if socket address cannot be allocated */
+#endif
+};
+
 /**
  send data
 
  @param socket 客户端socket
  @param buffer 发送内容地址
  @param length 发送内容长度
- @param flags 发送方式标志，一般为0
- @return 如果成功，则返回发送的字节数，失败则返回...
+ @param flags 发送方式标志，一般为0 _socket_flag
+ @return 如果成功，则返回发送的字节数，失败则返回 -1
  */
 ssize_t send(int socket, const void *buffer, size_t length, int flags);
 ssize_t sendmsg(int socket, const struct msghdr *message, int flags);
 ssize_t sendto(int socket, const void *buffer, size_t length, int flags,
                const struct sockaddr *dest_addr, socklen_t dest_len);
 
+
+struct cmsghdr_desc  {
+    socklen_t cmsg_len ;// 包含该头部的数据长度
+    int  cmsg_level;    // 具体的协议标识
+    int  cmsg_type;     //协议中的类型
+} ;
+struct msghdr_desc {
+    void         *msg_name;      //消息的协议地址\
+                                 //协议地址和套接口信息，在非连接的UDP中，发送者要指定对方地址端口，接受方用于的到数据来源
+                                 //如果不需要的话可以设置为NULL（在TCP或者连接的UDP中，一般设置为NULL）
+    socklen_t     msg_namelen;   //地址的长度
+    struct iovec *msg_iov;       //多io缓冲区的地址
+    int           msg_iovlen;    //缓冲区的个数
+    void         *msg_control;   //辅助数据的地址,结构见cmsghdr_desc
+    socklen_t     msg_controllen;//辅助数据的长度
+    int           msg_flags;     //接收消息的标识
+};
 /**
  receive data
  
@@ -291,7 +337,7 @@ ssize_t sendto(int socket, const void *buffer, size_t length, int flags,
  @param buffer 接收内容的地址
  @param length 接收内容的长度
  @param flags 接收数据的标记 0，就是阻塞式，一直等待服务器的数据
- @return 接收到的数据长度
+ @return 如果成功，则接收到的数据长度，失败则返回 -1
  */
 ssize_t recv(int socket, void *buffer, size_t length, int flags);
 ssize_t recvfrom(int socket, void *restrict buffer, size_t length, int flags,
