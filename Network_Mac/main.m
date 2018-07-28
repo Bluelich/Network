@@ -10,12 +10,20 @@
 #import <sys/time.h>
 #import "Addr_Interface.h"
 #import <YYModel.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 
 @interface h_addr_list_obj : NSObject
 @property const void *addr;
 @property const char *host;
 @end
 @implementation h_addr_list_obj
+- (NSString *)description
+{
+    if (!self.host) {
+        return nil;
+    }
+    return [NSString stringWithUTF8String:self.host];
+}
 @end
 
 @interface HostInfo:NSObject
@@ -111,17 +119,16 @@ long long doTask(void (^block)(void)){
     long long duration = end - start;
     return duration;
 }
-int main(int argc, const char * argv[]) {
-    [Reachability.shared setNetworkStatusChangedBlock:^(NetworkStatus status) {
-        printf("%s\n",NSStringFromNetworkStatus(status).UTF8String);
-    }];
-    
-    HostInfo *info = [HostInfo infoWithHost:@"apple.com" type:AF_INET];
+
+void socket_connect(NSString *host){
+    HostInfo *info = [HostInfo infoWithHost:host type:AF_INET];
     if (info.h_addr_list.count == 0) {
         printf("\nno ip respond to host :%s",info.hostName.UTF8String);
     }
+    printf("\nlist:{\n%s\n}\n",info.h_addr_list.description.UTF8String);
     [info.h_addr_list enumerateObjectsUsingBlock:^(h_addr_list_obj * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        void *serv_addr = malloc(SOCK_MAXADDRLEN);
+        printf("\n*****************************\n");
+        void *serv_addr = NULL;
         if (info.h_addrtype == AF_INET) {
             struct sockaddr_in addr_in;
             memset(&addr_in, 0, sizeof(struct sockaddr_in));
@@ -142,17 +149,21 @@ int main(int argc, const char * argv[]) {
                 printf("socket error\n");
                 return;
             }
+            printf("\n[create] create a socket:%d",sockfd);
+            printf("\nconnecting... ");
             retVal = connect(sockfd, serv_addr, info.sockaddr_length);
-            NSData *data = [@"testData1" dataUsingEncoding:NSUTF8StringEncoding];
-            ssize_t size = send(sockfd, data.bytes, data.length, MSG_DONTROUTE);
-            if (size >= 0) {
-                printf("\n[send] send data success\n");
-            }else{
-                printf("\n[send] send data failed\n");
+            if (retVal != 0) {
+                printf("\nconnect failed");
+                return;
             }
+            printf("\n[connected]");
+            NSData *data = [@"testData1" dataUsingEncoding:NSUTF8StringEncoding];
+            printf("\n[send]    ");
+            ssize_t size = send(sockfd, data.bytes, data.length, MSG_DONTROUTE);
+            printf("%s",size > 0 ? "success" : "failed");
             
             struct iovec msg_iov = {
-                .iov_base = data.bytes,
+                .iov_base = (void *)data.bytes,
                 .iov_len  = data.length
             };
 //            struct cmsghdr msg_control = {
@@ -169,22 +180,37 @@ int main(int argc, const char * argv[]) {
 //                .msg_controllen = sizeof(msg_control),
                 .msg_flags = MSG_SEND
             };
+            
+            printf("\n[sendmsg] ");
             size = sendmsg(sockfd, &msg, 0);
-            if (size >= 0) {
-                printf("\n[sendmsg] send data success\n");
-            }else{
-                printf("\n[sendmsg] send data failed\n");
-            }
+            printf("%s",size > 0 ? "success" : "failed");
+            
+            printf("\n[sendto]  ");
             size = sendto(sockfd, data.bytes, data.length, MSG_DONTROUTE, serv_addr, info.sockaddr_length);
-            if (size >= 0) {
-                printf("\n[sendto] send data success\n");
-            }else{
-                printf("\n[sendto] send data failed\n");
-            }
+            printf("%s\n",size > 0 ? "success" : "failed");
         });
         printf("\nconnect:%s %s duration:%.3lf ms",obj.host,retVal == 0 ? "success":"failed", duration / 1000.f);
     }];
+}
+
+void proxy_test(NSString *host){
+    printf("%s:%s\n\n",host.UTF8String,NetworkHasAgentProxy(host) ? "YES" : "NO");
+}
+
+int main(int argc, const char * argv[]) {
+    socket_connect(@"apple.com");
     printf("\n\nend\n");
+    [Reachability.shared setNetworkStatusChangedBlock:^(NetworkStatus status) {
+        printf("%s\n",NSStringFromNetworkStatus(status).UTF8String);
+    }];
+    proxy_test(@"apple.com");
+    proxy_test(@"www.apple.com");
+    proxy_test(@"http://www.apple.com");
+    proxy_test(@"https://www.apple.com");
+    proxy_test(@"google.com");
+    proxy_test(@"www.google.com");
+    proxy_test(@"http://www.google.com");
+    proxy_test(@"https://www.google.com");
     [NSRunLoop.currentRunLoop run];
     return 0;
 }

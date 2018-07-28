@@ -49,7 +49,7 @@ typedef NS_ENUM(NSInteger, NetworkStatus) {
 
 FOUNDATION_EXPORT void __releaseCFObject__(CFTypeRef cf);
 FOUNDATION_EXPORT BOOL ConnectedToInternet(Address_format format);
-FOUNDATION_EXPORT BOOL NetworkHasAgentProxy(void);
+FOUNDATION_EXPORT BOOL NetworkHasAgentProxy(NSString *host);
 FOUNDATION_EXPORT NetworkStatus NetworkStatusForFlags(SCNetworkReachabilityFlags flags);
 FOUNDATION_EXPORT NSString *NSStringFromNetworkStatus(NetworkStatus status);
 #if TARGET_OS_IPHONE

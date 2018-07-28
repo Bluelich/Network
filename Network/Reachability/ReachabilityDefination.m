@@ -6,11 +6,13 @@
 //
 
 #import "ReachabilityDefination.h"
+#import <CFNetwork/CFProxySupport.h>
+#import <YYModel/YYModel.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 
-void __releaseCFObject__(CFTypeRef cf){ if (!cf) return; CFRelease(cf);}
 BOOL ConnectedToInternet(Address_format prefer_format){
     BOOL ipv6 = prefer_format & Address_format_ipv6;
-    if (!ipv6) {
+    if (!ipv6 && prefer_format == Address_format_other) {
         if (@available(macOS 10.11,iOS 9.0, *)) {
             ipv6 = YES;
         }
@@ -34,7 +36,7 @@ BOOL ConnectedToInternet(Address_format prefer_format){
     SCNetworkReachabilityRef defaultRouteReachability = SCNetworkReachabilityCreateWithAddress(NULL, address);
     SCNetworkReachabilityFlags flags;
     BOOL didRetrieveFlags = SCNetworkReachabilityGetFlags(defaultRouteReachability, &flags);
-    __releaseCFObject__(defaultRouteReachability);
+    !defaultRouteReachability ?: CFRelease(defaultRouteReachability);
     if (!didRetrieveFlags) {
         return NO;
     }
@@ -137,77 +139,217 @@ NetworkStatus NetworkStatusFromRadioAccess(NSString *radioAccessTechnology){
     }
 }
 #endif
+
+#if TARGET_OS_MAC
+@interface NetworkProxyAttr : NSObject
+//FTP Gopher HTTP HTTPS RTSP SOCKS
+@property (nonatomic,copy) NSString  *type;
+@property (nonatomic,copy) NSNumber  *enable;// value && value != 0
+@property (nonatomic,copy) NSNumber  *port;
+@property (nonatomic,copy) NSString  *proxy;
+@property (nonatomic,copy) NSNumber  *passive;//For FTP only
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)new  NS_UNAVAILABLE;
+@end
+@implementation NetworkProxyAttr
+- (instancetype)initWithType:(NSString *)type Attributes:(NSDictionary *)info
+{
+    self = [super init];
+    if (self) {
+        self.type = type;
+        [self parser:info];
+    }
+    return self;
+}
+- (void)parser:(NSDictionary *)info
+{
+    if (!self.type) {
+        return;
+    }
+    NSMutableDictionary<NSString *,NSString *> *attrs =
+     @{@"enable":[@"kCFNetworkProxies[]Enable" stringByReplacingOccurrencesOfString:@"[]" withString:self.type],
+       @"port"  :[@"kCFNetworkProxies[]Port" stringByReplacingOccurrencesOfString:@"[]" withString:self.type],
+       @"proxy" :[@"kCFNetworkProxies[]Proxy" stringByReplacingOccurrencesOfString:@"[]" withString:self.type]
+       }.mutableCopy;
+    if ([self.type isEqualToString:@"FTP"]) {
+        attrs[@"passive"] = [@"kCFNetworkProxies[]Passive" stringByReplacingOccurrencesOfString:@"[]" withString:self.type];
+    }
+    [attrs enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+        [self setValue:info[obj] forKey:key];
+    }];
+}
+@end
+@interface NetworkProxyPACAttr : NSObject
+@property (nonatomic,copy) NSNumber  *enable;
+@property (nonatomic,copy) NSString  *URLString;
+@property (nonatomic,copy) NSString  *fullJavaScriptText;
+@property (nonatomic,copy) NSNumber  *discoveryEnable;
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)new  NS_UNAVAILABLE;
+@end
+@implementation NetworkProxyPACAttr
+- (instancetype)initWithAttributes:(NSDictionary *)info
+{
+    self = [super init];
+    if (self) [self parser:info];
+    return self;
+}
+- (void)parser:(NSDictionary *)info
+{
+    NSString *CFNetworkPACJavaScript = @"kCFNetworkProxiesProxyAutoConfigJavaScript";
+    NSDictionary<NSString *,NSString *> *attrs =
+    @{@"enable"             :(__bridge NSString *)kCFNetworkProxiesProxyAutoConfigEnable,
+      @"URLString"          :(__bridge NSString *)kCFNetworkProxiesProxyAutoConfigURLString,
+      @"fullJavaScriptText" :CFNetworkPACJavaScript,
+      @"discoveryEnable"    :(__bridge NSString *)kCFNetworkProxiesProxyAutoDiscoveryEnable};
+    [attrs enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+        [self setValue:info[obj] forKey:key];
+    }];
+}
+@end
+#endif
+
+typedef NS_ENUM(NSUInteger, NetworkProxyType) {
+    NetworkProxyTypeUnknow = 0,
+    NetworkProxyTypeNone,//directly
+    NetworkProxyTypeHTTP,
+    NetworkProxyTypeHTTPS,
+    NetworkProxyTypeSOCKS,
+    NetworkProxyTypeFTP,
+    NetworkProxyTypeAutoConfigurationURL, //pac
+    NetworkProxyTypeAutoConfigurationJavaScript
+};
+NetworkProxyType NetworkProxyTypeForProxy(NSString *proxy){
+    if (!proxy) return NetworkProxyTypeUnknow;
+    CFStringRef proxyref = (__bridge CFStringRef)proxy;
+    CFStringCompareFlags compareOptions = kCFCompareCaseInsensitive;
+    if (!CFStringCompare(proxyref, kCFProxyTypeNone, compareOptions)) {
+        return NetworkProxyTypeNone;
+    }else if (!CFStringCompare(proxyref, kCFProxyTypeHTTP, compareOptions)) {
+        return NetworkProxyTypeHTTP;
+    }else if (!CFStringCompare(proxyref, kCFProxyTypeHTTPS, compareOptions)) {
+        return NetworkProxyTypeHTTPS;
+    }else if (!CFStringCompare(proxyref, kCFProxyTypeSOCKS, compareOptions)) {
+        return NetworkProxyTypeSOCKS;
+    }else if (!CFStringCompare(proxyref, kCFProxyTypeFTP, compareOptions)) {
+        return NetworkProxyTypeFTP;
+    }else if (!CFStringCompare(proxyref, kCFProxyTypeAutoConfigurationURL, compareOptions)) {
+        return NetworkProxyTypeAutoConfigurationURL;
+    }else if (!CFStringCompare(proxyref, kCFProxyTypeAutoConfigurationJavaScript, compareOptions)) {
+        return NetworkProxyTypeAutoConfigurationJavaScript;
+    }
+    return NetworkProxyTypeUnknow;
+}
+@interface NetworkSystemProxySettings : NSObject
+@property (nonatomic,assign) NetworkProxyType  proxyType;
+@property (nonatomic,  copy) NSString  *hostName;
+@property (nonatomic,  copy) NSNumber  *portNumber;
+@property (nonatomic,  copy) NSURL     *PACURL;
+@property (nonatomic,  copy) NSString  *PACJavaScript;
+@property (nonatomic,  copy) NSString  *username;
+@property (nonatomic,  copy) NSString  *password;
+@property CFHTTPMessageRef PACHTTPResponseForAuthError;
+#if TARGET_OS_MAC
+@property (nonatomic,  copy) NSArray<NSString *> *exceptionsList;
+@property (nonatomic,  copy) NSNumber  *excludeSimpleHostnames;
+@property (nonatomic,strong) NetworkProxyAttr     *FTPAtts;
+@property (nonatomic,strong) NetworkProxyAttr     *GopherAtts;
+@property (nonatomic,strong) NetworkProxyAttr     *HTTPAttrs;
+@property (nonatomic,strong) NetworkProxyAttr     *HTTPSAttrs;
+@property (nonatomic,strong) NetworkProxyAttr     *RTSPAttrs;
+@property (nonatomic,strong) NetworkProxyAttr     *SOCKSAttrs;
+@property (nonatomic,strong) NetworkProxyPACAttr  *PACAttrs;
+#endif
+- (instancetype)init NS_UNAVAILABLE;
+- (instancetype)new  NS_UNAVAILABLE;
+@end
+@implementation NetworkSystemProxySettings
+- (instancetype)initWithAttributes:(NSDictionary *)info
+{
+    self = [super init];
+    if (self) [self parser:info];
+    return self;
+}
+- (void)parser:(NSDictionary *)info
+{
+    static NSDictionary<NSString *,NSString *> *attrs = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        attrs = @{@"hostName":(__bridge NSString *)kCFProxyHostNameKey,
+                  @"portNumber":(__bridge NSString *)kCFProxyPortNumberKey,
+                  @"PACURL":(__bridge NSString *)kCFProxyAutoConfigurationURLKey,
+                  @"PACJavaScript":(__bridge NSString *)kCFProxyAutoConfigurationJavaScriptKey,
+                  @"username":(__bridge NSString *)kCFProxyUsernameKey,
+                  @"password":(__bridge NSString *)kCFProxyPasswordKey,
+#if ! TARGET_OS_IPHONE && TARGET_OS_MAC
+                  @"exceptionsList":(__bridge NSString *)kCFNetworkProxiesExceptionsList,
+                  @"excludeSimpleHostnames":(__bridge NSString *)kCFNetworkProxiesExcludeSimpleHostnames,
+#endif
+                  };
+    });
+    NSString *CFPACHTTPResponseKey = @"kCFProxyAutoConfigurationHTTPResponse";
+    NSString *proxy = info[(__bridge NSString *)kCFProxyTypeKey];
+    self.proxyType = NetworkProxyTypeForProxy(proxy);
+    id obj = info[CFPACHTTPResponseKey];
+    if (obj) {
+        self.PACHTTPResponseForAuthError = (__bridge CFHTTPMessageRef)obj;
+    }
+    [attrs enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+        [self setValue:info[obj] forKey:key];
+    }];
+}
+@end
 /*
  * 判断当前网络状态下,是否有HTTP/HTTPS代理
  */
-BOOL NetworkHasAgentProxy(){
-    CFStringRef domain = CFStringCreateWithCString(kCFAllocatorDefault, "http://www.apple.com", kCFStringEncodingUTF8);
-    CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault, domain, NULL);
-    __releaseCFObject__(domain);
-    CFArrayRef proxies = CFNetworkCopyProxiesForURL(url,CFNetworkCopySystemProxySettings());
-    __releaseCFObject__(url);
-    CFIndex count = CFArrayGetCount(proxies);
-    BOOL result = NO;
-    for (CFIndex idx = 0; idx < count; idx++) {
-        CFDictionaryRef proxy = CFArrayGetValueAtIndex(proxies, idx);
-        /*
-         kCFProxyTypeKey -> CFStringRef
-         kCFProxyTypeNone : directly
-         kCFProxyTypeHTTP
-         kCFProxyTypeHTTPS
-         kCFProxyTypeSOCKS
-         kCFProxyTypeFTP
-         kCFProxyTypeAutoConfigurationURL - 由自动配置文件(pac)指定
-         kCFProxyHostNameKey -> CFString
-         kCFProxyPortNumberKey -> CFNumber
-         kCFProxyAutoConfigurationURLKey -> CFURL when proxyType:kCFProxyTypeAutoConfigurationURL
-         kCFProxyAutoConfigurationJavaScriptKey -> CFString full JavaScript text
-         kCFProxyUsernameKey -> CFString
-         kCFProxyPasswordKey -> CFString
-         kCFProxyTypeAutoConfigurationJavaScript -> kCFProxyTypeAutoConfigurationJavaScript
-         kCFProxyAutoConfigurationHTTPResponseKey -> kCFProxyAutoConfigHTTPResponse
-         //Mac Only
-         kCFNetworkProxiesExceptionsList -> CFArray of CFStrings
-         kCFNetworkProxiesExcludeSimpleHostnames -> CFNumber
-         kCFNetworkProxiesFTPEnable -> CFNumber
-         kCFNetworkProxiesFTPPassive -> CFNumber
-         kCFNetworkProxiesFTPPort -> CFNumber
-         kCFNetworkProxiesFTPProxy -> CFString
-         kCFNetworkProxiesGopherEnable -> CFNumber
-         kCFNetworkProxiesGopherPort -> CFNumber
-         kCFNetworkProxiesGopherProxy -> CFString
-         kCFNetworkProxiesHTTPEnable -> CFNumber
-         kCFNetworkProxiesHTTPPort -> CFNumber
-         kCFNetworkProxiesHTTPProxy -> CFString
-         kCFNetworkProxiesHTTPSEnable -> CFNumber
-         kCFNetworkProxiesHTTPSPort -> CFNumber
-         kCFNetworkProxiesHTTPSProxy -> CFString
-         kCFNetworkProxiesRTSPEnable -> CFNumber
-         kCFNetworkProxiesRTSPPort -> CFNumber
-         kCFNetworkProxiesRTSPProxy -> CFString
-         kCFNetworkProxiesSOCKSEnable -> CFNumber
-         kCFNetworkProxiesSOCKSPort -> CFNumber
-         kCFNetworkProxiesSOCKSProxy -> CFString
-         kCFNetworkProxiesProxyAutoConfigEnable -> CFNumber
-         kCFNetworkProxiesProxyAutoConfigURLString -> CFString
-         kCFNetworkProxiesProxyAutoConfigJavaScript -> CFString
-         kCFNetworkProxiesProxyAutoDiscoveryEnable -> CFNumber
-         */
-        CFStringRef type = CFDictionaryGetValue(proxy, kCFProxyTypeKey);
-        if (type != NULL && (type == kCFProxyTypeHTTP || type == kCFProxyTypeHTTPS)) {
-            result = YES;
-        }else{
-            CFStringRef host = CFDictionaryGetValue(proxy, kCFProxyHostNameKey);
-            CFStringRef port = CFDictionaryGetValue(proxy, kCFProxyPortNumberKey);
-            if (host != NULL || port != NULL){
-                result = YES;
-            }
-            __releaseCFObject__(host);
-            __releaseCFObject__(port);
-        }
-        __releaseCFObject__(proxy);
-        __releaseCFObject__(type);
+BOOL NetworkHasAgentProxyFor(NSDictionary *dic){
+    return NO;
+}
+BOOL NetworkHasAgentProxy(NSString *host){
+    if (!host) return NO;
+    NSURL *url = [NSURL URLWithString:host];
+    if (!url) return NO;
+    NSDictionary *systemProxySettings = (__bridge NSDictionary *)CFNetworkCopySystemProxySettings();
+    if (!systemProxySettings.count) {
+        return NO;
     }
-    __releaseCFObject__(proxies);
-    return result;
+    NSArray<NSDictionary *> *proxies = (__bridge NSArray *)CFNetworkCopyProxiesForURL((__bridge CFURLRef)(url),(__bridge CFDictionaryRef)systemProxySettings);
+    if (!proxies) return NO;
+    for (NSDictionary * _Nonnull obj in proxies) {
+        NSString *type = ([obj objectForKey:(__bridge NSString *)kCFProxyTypeKey]);
+        if (type == (__bridge NSString *)kCFProxyTypeHTTP  ||
+            type == (__bridge NSString *)kCFProxyTypeHTTPS) {
+            printf("----- [type] -----");
+            return YES;
+        }else {
+            NSString *host = [obj objectForKey:(__bridge NSString *)kCFProxyHostNameKey];
+            NSNumber *port = [obj objectForKey:(__bridge NSString *)kCFProxyPortNumberKey];
+            if (host.length && port.stringValue.length) {
+                printf("----- [host:%s port:%s] -----",host.UTF8String,port.stringValue.UTF8String);
+                return YES;
+            }
+        }
+    }
+    NSString *urlString = [systemProxySettings objectForKey:(__bridge NSString *)kCFNetworkProxiesProxyAutoConfigURLString];
+    if (!urlString) {
+        urlString = [systemProxySettings objectForKey:(__bridge NSString *)kCFProxyAutoConfigurationURLKey];
+    }
+    if (urlString) {
+        //PAC文件
+        NSError *error= nil;
+        NSString *js_pac = [NSString stringWithContentsOfURL:[NSURL URLWithString:urlString] encoding:NSUTF8StringEncoding error:&error];
+        if (!error && js_pac) {
+            JSContext *context = [JSContext new];
+            JSValue *value = [context evaluateScript:js_pac];
+            NSString *findProxyForURL_url_host = [NSString stringWithFormat:@"FindProxyForURL('%@','%@')",url.absoluteString,url.host];
+            value = [context evaluateScript:findProxyForURL_url_host];
+            static NSString *direct = @"DIRECT;";
+            NSString *proxy = value.toString;
+            if (proxy && ![proxy isEqualToString:direct]) {
+                printf("----- [pac:%s proxy:%s] -----",urlString.UTF8String,proxy.UTF8String);
+                return YES;
+            }
+        }
+    }
+    return NO;
 }
