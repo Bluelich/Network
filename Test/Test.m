@@ -240,6 +240,51 @@ void getIP(){
     }
     freeifaddrs(ifaddr);
 }
+
+// 获取IPAddress
+NSDictionary *getIPAddress(){
+    NSMutableDictionary *addresses = @{}.mutableCopy;
+    // retrieve the current interfaces - returns 0 on success
+    struct ifaddrs *interfaces;
+    if(!getifaddrs(&interfaces)) {
+        // Loop through linked list of interfaces
+        struct ifaddrs *interface;
+        for(interface=interfaces; interface; interface=interface->ifa_next) {
+            if(!(interface->ifa_flags &IFF_UP)/* || (interface->ifa_flags & IFF_LOOPBACK) */ ) {
+                continue;// deeply nested code is harder to read
+            }
+            const struct sockaddr *addr = (const struct sockaddr *)interface->ifa_addr;
+            NSString *type =nil;
+            void *addrptr = NULL;
+            switch (addr->sa_family) {
+                case AF_INET:
+                {
+                    struct in_addr sin_addr = ((const struct sockaddr_in *)addr)->sin_addr;
+                    addrptr = &sin_addr;
+                    type = @"IPv4";
+                }
+                    break;
+                case AF_INET6:
+                {
+                    struct in6_addr sin_addr = ((const struct sockaddr_in6 *)addr)->sin6_addr;
+                    addrptr = &sin_addr;
+                    type = @"IPv6";
+                }
+                    break;
+                default:
+                    continue;
+            }
+            const char *addrBuf = inet_ntop(addr->sa_family, addrptr, malloc(INET6_ADDRSTRLEN), INET6_ADDRSTRLEN);
+            NSString *name = [NSString stringWithUTF8String:interface->ifa_name];
+            NSString *key  = [NSString stringWithFormat:@"%@ %@", type,name];
+            NSString *ip   = [NSString stringWithUTF8String:addrBuf];
+            addresses[key] = ip;
+        }
+        freeifaddrs(interfaces);
+    }
+    return addresses.count ? addresses.copy : nil;
+}
+
 void test_other(){
     
 }
@@ -376,6 +421,409 @@ void socket_udp_client_test(){
     close(1);
 }
 
+
+#pragma mark -
+@implementation h_addr_list_obj
+- (NSString *)description
+{
+    if (!self.host) {
+        return nil;
+    }
+    return [NSString stringWithUTF8String:self.host];
+}
+@end
+
+@implementation HostInfo
++ (instancetype)infoWithHost:(NSString *)hostName type:(int)type
+{
+    int length = 0;
+    switch (type) {
+        case AF_INET:
+            length = INET_ADDRSTRLEN;
+            break;
+        case AF_INET6:
+            length = INET6_ADDRSTRLEN;
+            break;
+        default:
+            return nil;
+    }
+    HostInfo *obj = [HostInfo new];
+    obj.sockaddr_length = length;
+    obj.hostName = hostName;
+    struct hostent *host = gethostbyname2(hostName.UTF8String, type);
+    if (!host) {
+        return obj;
+    }
+    NSMutableArray *h_addr_list = @[].mutableCopy;
+    int h_addr_list_count = 0;
+    while (host->h_addr_list[h_addr_list_count]) {
+        void *addr = host->h_addr_list[h_addr_list_count];
+        const char *ip = inet_ntop(type, addr, malloc(length), length);
+        if (ip) {
+            h_addr_list_obj *info = [h_addr_list_obj new];
+            info.addr = addr;
+            info.host = ip;
+            [h_addr_list addObject:info];
+        }
+        h_addr_list_count++;
+    }
+    obj.h_addr_list = h_addr_list;
+    obj.h_name = [NSString stringWithUTF8String:host->h_name];
+    obj.h_addrtype = host->h_addrtype;
+    obj.h_length = host->h_length;
+    NSMutableArray *h_aliases = @[].mutableCopy;
+    int h_aliases_count = 0;
+    while (host->h_aliases[h_aliases_count]) {
+        NSString *val = [NSString stringWithUTF8String:host->h_aliases[h_aliases_count]];
+        [h_aliases addObject:val];
+    }
+    obj.h_aliases = h_aliases;
+    return obj;
+}
+@end
+long long doTask(void (^block)(void)){
+    struct timeval time;
+    int res = gettimeofday(&time, NULL);
+    long long start = time.tv_sec * 1000000 + time.tv_usec;
+    !block ?: block();
+    if (res != 0) {
+        printf("fetch task start time error : %d",res);
+        switch (errno) {
+            case EFAULT:
+                printf("[EFAULT]  An argument address referenced invalid memory.");
+                break;
+            case EPERM:
+                printf("[EPERM]   A user other than the super-user attempted to set the time.");
+            default:
+                break;
+        }
+        return 0;
+    }
+    res = gettimeofday(&time, NULL);
+    if (res != 0) {
+        printf("fetch task end time error : %d",res);
+        switch (errno) {
+            case EFAULT:
+                printf("[EFAULT]  An argument address referenced invalid memory.");
+                break;
+            case EPERM:
+                printf("[EPERM]   A user other than the super-user attempted to set the time.");
+            default:
+                break;
+        }
+        return 0;
+    }
+    long long end = time.tv_sec * 1000000 + time.tv_usec;
+    long long duration = end - start;
+    return duration;
+}
+void socket_connect(NSString *host){
+    HostInfo *info = [HostInfo infoWithHost:host type:AF_INET];
+    if (info.h_addr_list.count == 0) {
+        printf("\nno ip respond to host :%s",info.hostName.UTF8String);
+    }
+    printf("\nlist:{\n%s\n}\n",info.h_addr_list.description.UTF8String);
+    [info.h_addr_list enumerateObjectsUsingBlock:^(h_addr_list_obj * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        printf("\n*****************************\n");
+        void *serv_addr = NULL;
+        if (info.h_addrtype == AF_INET) {
+            struct sockaddr_in addr_in;
+            memset(&addr_in, 0, sizeof(struct sockaddr_in));
+            addr_in.sin_port = htons(80);
+            addr_in.sin_addr = *((struct in_addr *)(obj.addr));
+            serv_addr = &addr_in;
+        }else if (info.h_addrtype == AF_INET6){
+            struct sockaddr_in6 addr_in6;
+            memset(&addr_in6, 0, sizeof(struct sockaddr_in6));
+            addr_in6.sin6_port = htons(80);
+            addr_in6.sin6_addr = *((struct in6_addr *)(obj.addr));
+            serv_addr = &addr_in6;
+        }
+        __block int retVal = -1;
+        long long duration = doTask(^{
+            int sockfd = socket(info.h_addrtype, SOCK_STREAM,0);
+            if (sockfd < 0) {
+                printf("socket error\n");
+                return;
+            }
+            printf("\n[create] create a socket:%d",sockfd);
+            printf("\nconnecting... ");
+            retVal = connect(sockfd, serv_addr, info.sockaddr_length);
+            if (retVal != 0) {
+                printf("\nconnect failed");
+                return;
+            }
+            printf("\n[connected]");
+            NSData *data = [@"testData1" dataUsingEncoding:NSUTF8StringEncoding];
+            printf("\n[send]    ");
+            ssize_t size = send(sockfd, data.bytes, data.length, MSG_DONTROUTE);
+            printf("%s",size > 0 ? "success" : "failed");
+            
+            struct iovec msg_iov = {
+                .iov_base = (void *)data.bytes,
+                .iov_len  = data.length
+            };
+//            struct cmsghdr msg_control = {
+//                .cmsg_len = CMSG_LEN(3),
+//                .cmsg_level = SOL_SOCKET,
+//                .cmsg_type = SCM_TIMESTAMP,
+//            };
+            struct msghdr msg = {
+                .msg_name = NULL,
+                .msg_namelen = 1,
+                .msg_iov = &msg_iov,
+                .msg_iovlen = 1,
+//                .msg_control = &msg_control,
+//                .msg_controllen = sizeof(msg_control),
+                .msg_flags = MSG_SEND
+            };
+            
+            printf("\n[sendmsg] ");
+            size = sendmsg(sockfd, &msg, 0);
+            printf("%s",size > 0 ? "success" : "failed");
+            
+            printf("\n[sendto]  ");
+            size = sendto(sockfd, data.bytes, data.length, MSG_DONTROUTE, serv_addr, info.sockaddr_length);
+            printf("%s\n",size > 0 ? "success" : "failed");
+        });
+        printf("\nconnect:%s %s duration:%.3lf ms",obj.host,retVal == 0 ? "success":"failed", duration / 1000.f);
+    }];
+}
+
+NSString *proxy_host(NSString *host){
+    return [NSString stringWithFormat:@"%@:%@",host,NetworkHasAgentProxy([NSURL URLWithString:host]) ? @"YES" : @"NO"];
+}
+NSString *proxy_test(void){
+    NSArray<NSString *> *urls = @[@"apple.com",
+                      @"www.apple.com",
+                      @"http://www.apple.com",
+                      @"https://www.apple.com",
+                      @"google.com",
+                      @"www.google.com",
+                      @"http://google.com",
+                      @"https://google.com",
+                      @"http://www.google.com",
+                      @"https://www.google.com"];
+    NSMutableArray<NSString *> *results = @[].mutableCopy;
+    [urls enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [results addObject:proxy_host(obj)];
+    }];
+    return [results componentsJoinedByString:@"\n"];
+}
+#pragma mark -
+@interface MyCFSocket : NSObject
+@end
+const void *socketRetain(const void *info){
+    NSLog(@"%s",__PRETTY_FUNCTION__);
+//    MyCFSocket *socketInfo = (__bridge MyCFSocket *)info;
+//    return (void *)CFRetain((__bridge CFTypeRef)(socketInfo));
+    return info;
+}
+
+void socketRelease(const void *info){
+    NSLog(@"%s",__PRETTY_FUNCTION__);
+//    MyCFSocket *socketInfo = (__bridge MyCFSocket *)info;
+//    CFRelease((__bridge CFTypeRef)(socketInfo));
+}
+CFStringRef socketCopyDescription(const void *info){
+    NSLog(@"%s",__PRETTY_FUNCTION__);
+//    MyCFSocket *socketInfo = (__bridge MyCFSocket *)info;
+//    return (__bridge CFStringRef)socketInfo.description;
+    return CFSTR("[invoke socketCopyDescription]");
+}
+void readStreamClientCallBack(CFReadStreamRef stream, CFStreamEventType type, void *clientCallBackInfo){
+    NSLog(@"%s",__PRETTY_FUNCTION__);
+    uint8 buff[255];
+    CFReadStreamRead(stream, buff, 255);
+}
+void writeStreamClientCallBack(CFWriteStreamRef stream, CFStreamEventType type, void *clientCallBackInfo){
+    NSLog(@"%s",__PRETTY_FUNCTION__);
+//    outputStream = stream;
+}
+void innerCFSocketCallBack(CFSocketRef socket, CFSocketCallBackType callBackType, CFDataRef addressData, const void *data, void *info){
+    NSLog(@"%s",__PRETTY_FUNCTION__);
+    //addressData: valid only for kCFSocketAcceptCallBack or kCFSocketDataCallBack
+    MyCFSocket *socketInfo = (__bridge MyCFSocket *)info;
+    if (![socketInfo isKindOfClass:MyCFSocket.class]) {
+        return;
+    }
+    switch (callBackType) {
+        case kCFSocketNoCallBack:break;
+        case kCFSocketReadCallBack:break;
+        case kCFSocketAcceptCallBack:break;
+        case kCFSocketDataCallBack:break;
+        case kCFSocketConnectCallBack:break;
+        case kCFSocketWriteCallBack:break;
+    }
+    if (callBackType == kCFSocketAcceptCallBack) {
+        CFSocketNativeHandle nativeSocketHandle = CFSocketGetNative(socket);
+        struct sockaddr addr_remote;
+        memset(&addr_remote, 0, sizeof(addr_remote));
+        socklen_t addr_len = SOCK_MAXADDRLEN;
+        if (getpeername(nativeSocketHandle, &addr_remote, &addr_len) != 0) {
+            return;
+        }
+        struct in6_addr;
+        if (addr_remote.sa_family == AF_INET) {
+            struct sockaddr_in sockaddr_in = *(struct sockaddr_in *)&addr_remote;
+            char ipaddr[INET_ADDRSTRLEN];
+            inet_ntop(sockaddr_in.sin_family, (const void *)&(sockaddr_in.sin_addr), ipaddr, sizeof(ipaddr));
+            printf("ipv4:%s",ipaddr);
+        }else if (addr_remote.sa_family == AF_INET6){
+            struct sockaddr_in6 sockaddr_in = *(struct sockaddr_in6 *)&addr_remote;
+            char ipaddr[INET6_ADDRSTRLEN];
+            inet_ntop(sockaddr_in.sin6_family, (const void *)&(sockaddr_in.sin6_addr), ipaddr, sizeof(ipaddr));
+            printf("ipv6:%s",ipaddr);
+        }else{
+            return;
+        }
+        
+        CFReadStreamRef  readStream;
+        CFWriteStreamRef  writeStream;
+        // 创建一个可读写的socket连接
+        CFStreamCreatePairWithSocket(kCFAllocatorDefault,nativeSocketHandle,&readStream,&writeStream);
+        if(readStream && writeStream){
+            CFStreamClientContext streamContext = {
+                .version = 0,
+                .info = info,
+                .retain = NULL,
+                .release = NULL,
+                .copyDescription = NULL
+            };
+            if(!CFReadStreamSetClient(readStream,kCFStreamEventHasBytesAvailable,readStreamClientCallBack,&streamContext)){
+                return;
+            }
+            if(!CFWriteStreamSetClient(writeStream,kCFStreamEventCanAcceptBytes,writeStreamClientCallBack,&streamContext)){
+                return;
+            }
+            NSString *buff = @"Hunter21,this is Overlord";
+            CFWriteStreamWrite(writeStream,(const UInt8 *)buff.UTF8String,buff.length);
+        }
+    }
+}
+@implementation MyCFSocket
+- (void)test
+{
+    CFSocketContext context = {
+        .version = 0,
+        .info = (__bridge void *)self,
+        .retain = &socketRetain,
+        .release = &socketRelease,
+        .copyDescription = &socketCopyDescription
+    };
+    CFOptionFlags callBackTypes = kCFSocketReadCallBack | kCFSocketAcceptCallBack | kCFSocketDataCallBack | kCFSocketConnectCallBack | kCFSocketWriteCallBack;
+    CFSocketCallBack callout = innerCFSocketCallBack;
+    CFSocketRef socketRef = CFSocketCreate(kCFAllocatorDefault,
+                                           PF_INET,    //ipv4:PF_INET    ipv6:PF_INET6
+                                           SOCK_STREAM,//TCP:SOCK_STREAM UDP:SOCK_DGRAM
+                                           IPPROTO_TCP,//TCP:IPPROTO_TCP UDP:IPPROTO_UDP
+                                           callBackTypes,
+                                           callout,
+                                           &context);
+    /*
+     选项名称　　　　　　　　说明　　　　　　　　　　　　　　　　　　数据类型
+     ========================================================================
+     　　　　　　　　　　　    　SOL_SOCKET
+     ------------------------------------------------------------------------
+     SO_BROADCAST　　　　　　允许发送广播数据　　　　　　　　　　　　int
+     SO_DEBUG　　　　　　　　允许调试　　　　　　　　　　　　　　　　int
+     SO_DONTROUTE　　　　　　不查找路由　　　　　　　　　　　　　　　int
+     SO_ERROR　　　　　　　　获得套接字错误　　　　　　　　　　　　　int
+     SO_KEEPALIVE　　　　　　保持连接　　　　　　　　　　　　　　　　int
+     SO_LINGER　　　　　　　 延迟关闭连接　　　　　　　　　　　　　　struct linger
+     SO_OOBINLINE　　　　　　带外数据放入正常数据流　　　　　　　　　int
+     SO_RCVBUF　　　　　　　 接收缓冲区大小　　　　　　　　　　　　　int
+     SO_SNDBUF　　　　　　　 发送缓冲区大小　　　　　　　　　　　　　int
+     SO_RCVLOWAT　　　　　　 接收缓冲区下限　　　　　　　　　　　　　int
+     SO_SNDLOWAT　　　　　　 发送缓冲区下限　　　　　　　　　　　　　int
+     SO_RCVTIMEO　　　　　　 接收超时　　　　　　　　　　　　　　　　struct timeval
+     SO_SNDTIMEO　　　　　　 发送超时　　　　　　　　　　　　　　　　struct timeval
+     SO_REUSERADDR　　　　　 允许重用本地地址和端口　　　　　　　　　int
+     SO_TYPE　　　　　　　　 获得套接字类型　　　　　　　　　　　　　int
+     SO_BSDCOMPAT　　　　　　与BSD系统兼容　　　　　　　　　　　　　 int
+     ========================================================================
+     　　　　　　　　　　　　IPPROTO_IP
+     ------------------------------------------------------------------------
+     IP_HDRINCL　　　　　　　在数据包中包含IP首部　　　　　　　　　　int
+     IP_OPTINOS　　　　　　　IP首部选项　　　　　　　　　　　　　　　int
+     IP_TOS　　　　　　　　　服务类型
+     IP_TTL　　　　　　　　　生存时间　　　　　　　　　　　　　　　　int
+     ========================================================================
+     　　　　　　　　　　　　IPPRO_TCP
+     ------------------------------------------------------------------------
+     TCP_MAXSEG　　　　　　　TCP最大数据段的大小　　　　　　　　　　 int
+     TCP_NODELAY　　　　　　 不使用Nagle算法　　　　　　　　　　　　 int
+     ========================================================================
+     */
+    bool optval = true;
+    CFSocketNativeHandle socket = CFSocketGetNative(socketRef);
+    /*
+     SOL_SOCKET:通用套接字选项
+     IPPROTO_IP:IP选项
+     IPPROTO_TCP:TCP选项
+     */
+    int level  = SOL_SOCKET;
+    int option_name = SO_REUSEADDR;
+    const void *option_value = (const void *)&(optval); //bool | 整形 | 结构体 (value of option_name)
+    socklen_t option_len = sizeof(optval);
+    int val = setsockopt(socket,level,option_name,option_value,option_len);
+    if (val != 0) {
+        NSLog(@"error:%d val is -1",errno);
+        switch (errno) {
+            case EBADF:
+                NSLog(@"sock不是有效的文件描述词");
+                break;
+            case EFAULT:
+                NSLog(@"optval指向的内存并非有效的进程空间");
+                break;
+            case EINVAL:
+                NSLog(@"在调用setsockopt()时，optlen无效");
+                break;
+            case ENOPROTOOPT:
+                NSLog(@"指定的协议层不能识别选项");
+                break;
+            case ENOTSOCK:
+                NSLog(@"sock描述的不是套接字");
+                break;
+            default:
+                break;
+        }
+    }
+    
+    struct sockaddr_in addr4_remote;
+    memset(&addr4_remote , 0,sizeof(addr4_remote));
+    addr4_remote.sin_len = sizeof(addr4_remote);
+    addr4_remote.sin_family = AF_INET;
+    addr4_remote.sin_port = htons(80);
+    addr4_remote.sin_addr.s_addr = inet_addr("192.168.0.1");
+
+//    // 定义本地监听地址以及端口
+//    struct sockaddr_in addr4_local;
+//    memset(&addr4_local, 0, sizeof(addr4_local));
+//    addr4_local.sin_port = htons(80);
+//    addr4_local.sin_addr.s_addr = htonl(INADDR_ANY);
+//    CFDataRef addressRef_local = CFDataCreate(kCFAllocatorDefault,(const UInt8 *)&addr4_local,sizeof (addr4_local));
+//    CFSocketError setAddressError = CFSocketSetAddress(socketRef ,addressRef_local);
+//    if (setAddressError != kCFSocketSuccess) {
+//        return;
+//    }
+    
+    CFDataRef addressRef_remote = CFDataCreate(kCFAllocatorDefault,(const UInt8 *)&addr4_remote,sizeof (addr4_remote));
+    if (CFSocketConnectToAddress(socketRef, addressRef_remote, 10) != kCFSocketSuccess) {
+        return;
+    }
+    CFSocketCopyAddress(socketRef);
+    CFSocketCopyPeerAddress(socketRef);
+    CFRunLoopSourceRef socketSourceRef = CFSocketCreateRunLoopSource(kCFAllocatorDefault, socketRef, 0);
+    CFRunLoopAddSource(CFRunLoopGetCurrent(), socketSourceRef, kCFRunLoopCommonModes);
+    CFRelease(socketSourceRef);
+    CFDataRef data;
+    CFSocketSendData(socketRef, CFSocketCopyAddress(socketRef), data, 10);
+}
+@end
+void CFSocketTest(){
+    [[MyCFSocket new] test];
+}
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
 
 @interface Task ()

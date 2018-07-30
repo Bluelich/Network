@@ -7,10 +7,11 @@
 
 #import "ViewController.h"
 #import "Reachability.h"
+#import "Test.h"
 
 @interface ViewController ()
 
-@property (weak, nonatomic) IBOutlet UILabel *label;
+@property (weak, nonatomic) IBOutlet UITextView *textView;
 
 @end
 
@@ -18,12 +19,17 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.label.text = NSStringFromNetworkStatus(Reachability.shared.status);
+    self.textView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 20, 0, 0);
     [Reachability.shared setNetworkStatusChangedBlock:^(NetworkStatus status) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.label.text = NSStringFromNetworkStatus(status);
+            NSString *currentStatus = [NSString stringWithFormat:@"%@\n\nProxy:\n%@",NSStringFromNetworkStatus(status),proxy_test()];
+            if (self.textView.text.length) {
+                currentStatus = [self.textView.text stringByAppendingFormat:@"\n\n-----------------\n%@",currentStatus];
+            }
+            self.textView.text = currentStatus;
+            [self.textView scrollRectToVisible:[self.textView caretRectForPosition:self.textView.endOfDocument] animated:YES];
         });
     }];
-    
+    socket_connect(@"apple.com");
 }
 @end

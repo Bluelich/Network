@@ -134,13 +134,12 @@ NetworkStatus NetworkStatusFromRadioAccess(NSString *radioAccessTechnology){
     }else if ([WWAN_2G containsObject:radioAccessTechnology]){
         return ReachableVia2G;
     }else{
-        //Maybe 5G
-        return ReachableViaWWAN;
+        return ReachableViaWWAN;//Maybe 5G 😀
     }
 }
 #endif
 
-#if TARGET_OS_MAC
+#if TARGET_OS_OSX
 @interface NetworkProxyAttr : NSObject
 //FTP Gopher HTTP HTTPS RTSP SOCKS
 @property (nonatomic,copy) NSString  *type;
@@ -249,7 +248,7 @@ NetworkProxyType NetworkProxyTypeForProxy(NSString *proxy){
 @property (nonatomic,  copy) NSString  *username;
 @property (nonatomic,  copy) NSString  *password;
 @property CFHTTPMessageRef PACHTTPResponseForAuthError;
-#if TARGET_OS_MAC
+#if TARGET_OS_OSX
 @property (nonatomic,  copy) NSArray<NSString *> *exceptionsList;
 @property (nonatomic,  copy) NSNumber  *excludeSimpleHostnames;
 @property (nonatomic,strong) NetworkProxyAttr     *FTPAtts;
@@ -299,20 +298,33 @@ NetworkProxyType NetworkProxyTypeForProxy(NSString *proxy){
     }];
 }
 @end
-/*
- * 判断当前网络状态下,是否有HTTP/HTTPS代理
- */
-BOOL NetworkHasAgentProxyFor(NSDictionary *dic){
-    return NO;
+BOOL NetworkHasPACAgentProxyFor(NSURL *url,NSURL *pacURL){
+    if (!url || !pacURL) return NO;
+    NSError *error = nil;
+    NSString *js_pac = [NSString stringWithContentsOfURL:pacURL encoding:NSUTF8StringEncoding error:&error];
+    if (error || !js_pac) return NO;
+    JSContext *context = [JSContext new];
+    context.name = @"pac_route_context";//For debug
+    JSValue *value = [context evaluateScript:js_pac];
+    static NSString *functionName = @"FindProxyForURL";//FindProxyForURL(url, host)
+    JSValue *function = context[functionName];
+    if (function.isUndefined) return NO;
+    value = [function callWithArguments:@[[JSValue valueWithObject:url.absoluteString inContext:context],
+                                          [JSValue valueWithObject:url.host inContext:context]]];
+    if (!value.isString) return NO;
+    static NSString *direct = @"DIRECT;";
+    NSString *proxy = value.toString;
+    if (!proxy || [proxy isEqualToString:direct]) return NO;
+    printf("----- [pac:%s proxy:%s] -----",pacURL.absoluteString.UTF8String,proxy.UTF8String);
+    return YES;
 }
-BOOL NetworkHasAgentProxy(NSString *host){
-    if (!host) return NO;
-    NSURL *url = [NSURL URLWithString:host];
+/*
+ * 判断当前网络状态下,是否有代理
+ */
+BOOL NetworkHasAgentProxy(NSURL *url){
     if (!url) return NO;
     NSDictionary *systemProxySettings = (__bridge NSDictionary *)CFNetworkCopySystemProxySettings();
-    if (!systemProxySettings.count) {
-        return NO;
-    }
+    if (!systemProxySettings.count) return NO;
     NSArray<NSDictionary *> *proxies = (__bridge NSArray *)CFNetworkCopyProxiesForURL((__bridge CFURLRef)(url),(__bridge CFDictionaryRef)systemProxySettings);
     if (!proxies) return NO;
     for (NSDictionary * _Nonnull obj in proxies) {
@@ -328,28 +340,18 @@ BOOL NetworkHasAgentProxy(NSString *host){
                 printf("----- [host:%s port:%s] -----",host.UTF8String,port.stringValue.UTF8String);
                 return YES;
             }
-        }
-    }
-    NSString *urlString = [systemProxySettings objectForKey:(__bridge NSString *)kCFNetworkProxiesProxyAutoConfigURLString];
-    if (!urlString) {
-        urlString = [systemProxySettings objectForKey:(__bridge NSString *)kCFProxyAutoConfigurationURLKey];
-    }
-    if (urlString) {
-        //PAC文件
-        NSError *error= nil;
-        NSString *js_pac = [NSString stringWithContentsOfURL:[NSURL URLWithString:urlString] encoding:NSUTF8StringEncoding error:&error];
-        if (!error && js_pac) {
-            JSContext *context = [JSContext new];
-            JSValue *value = [context evaluateScript:js_pac];
-            NSString *findProxyForURL_url_host = [NSString stringWithFormat:@"FindProxyForURL('%@','%@')",url.absoluteString,url.host];
-            value = [context evaluateScript:findProxyForURL_url_host];
-            static NSString *direct = @"DIRECT;";
-            NSString *proxy = value.toString;
-            if (proxy && ![proxy isEqualToString:direct]) {
-                printf("----- [pac:%s proxy:%s] -----",urlString.UTF8String,proxy.UTF8String);
-                return YES;
+            if (type == (__bridge NSString *)kCFProxyTypeAutoConfigurationURL) {
+                NSURL *pacURL = [systemProxySettings objectForKey:(__bridge NSString *)kCFProxyAutoConfigurationURLKey];
+                if (NetworkHasPACAgentProxyFor(url, pacURL)) {
+                    return YES;
+                }
             }
         }
     }
-    return NO;
+    //pac模式的无法通过type进行判断
+    NSString *PACURLString = [systemProxySettings objectForKey:(__bridge NSString *)kCFNetworkProxiesProxyAutoConfigURLString];
+    if (!PACURLString) return NO;
+    NSURL *pacURL = [NSURL URLWithString:PACURLString];
+    if (!pacURL) return NO;
+    return NetworkHasPACAgentProxyFor(url, pacURL);
 }
