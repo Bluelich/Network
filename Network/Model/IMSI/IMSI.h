@@ -8,6 +8,8 @@
 #import <Foundation/Foundation.h>
 
 /**
+ MSISDN:Mobile Subscriber International ISDN number 移动台国际用户识别码
+ 
  IMSI: International Mobile Subscriber Identity 国际移动用户识别码
  
  PLMN: Public Land Mobile Network 公共陆地移动网络
