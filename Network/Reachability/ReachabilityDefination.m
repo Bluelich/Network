@@ -195,11 +195,10 @@ NetworkStatus NetworkStatusFromRadioAccess(NSString *radioAccessTechnology){
 }
 - (void)parser:(NSDictionary *)info
 {
-    NSString *CFNetworkPACJavaScript = @"kCFNetworkProxiesProxyAutoConfigJavaScript";
     NSDictionary<NSString *,NSString *> *attrs =
     @{@"enable"             :(__bridge NSString *)kCFNetworkProxiesProxyAutoConfigEnable,
       @"URLString"          :(__bridge NSString *)kCFNetworkProxiesProxyAutoConfigURLString,
-      @"fullJavaScriptText" :CFNetworkPACJavaScript,
+      @"fullJavaScriptText" :(__bridge NSString *)kCFNetworkProxiesProxyAutoConfigJavaScript,
       @"discoveryEnable"    :(__bridge NSString *)kCFNetworkProxiesProxyAutoDiscoveryEnable};
     [attrs enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
         [self setValue:info[obj] forKey:key];
