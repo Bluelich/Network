@@ -113,6 +113,7 @@ NetworkStatus NetworkStatusFromRadioAccess(NSString *radioAccessTechnology){
     static NSArray *WWAN_2G = nil;
     static NSArray *WWAN_3G = nil;
     static NSArray *WWAN_4G = nil;
+    static NSArray *WWAN_5G = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         WWAN_2G = @[CTRadioAccessTechnologyGPRS,
@@ -126,15 +127,26 @@ NetworkStatus NetworkStatusFromRadioAccess(NSString *radioAccessTechnology){
                     CTRadioAccessTechnologyCDMAEVDORevB];
         WWAN_4G = @[CTRadioAccessTechnologyeHRPD,
                     CTRadioAccessTechnologyLTE];
+        /** 
+         * https://en.wikipedia.org/wiki/5G_NR
+         * NR :New Radio 
+         * NSA:non-standalone
+         */
+        if (@available(iOS 14.0, *)) {
+           WWAN_5G = @[CTRadioAccessTechnologyNRNSA,
+                       CTRadioAccessTechnologyNR];
+        }
     });
-    if ([WWAN_4G containsObject:radioAccessTechnology]) {
+    if ([WWAN_5G containsObject:radioAccessTechnology]) {
+        return ReachableVia5G;
+    }elseif ([WWAN_4G containsObject:radioAccessTechnology]) {
         return ReachableVia4G;
     }else if ([WWAN_3G containsObject:radioAccessTechnology]){
         return ReachableVia3G;
     }else if ([WWAN_2G containsObject:radioAccessTechnology]){
         return ReachableVia2G;
     }else{
-        return ReachableViaWWAN;//Maybe 5G 😀
+        return ReachableViaWWAN;//Maybe 6G 😀
     }
 }
 #endif
